@@ -7,28 +7,91 @@
     <link rel="stylesheet" href="styles/main.css">
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Fuente Bebas Neue de Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&display=swap" rel="stylesheet">
+    <style>
+      .boldonse-regular { font-family: 'Bebas Neue', sans-serif; }
+    </style>
 </head>
-<body class="bg-gray-100 text-gray-900">
-    <header class="bg-blue-700 text-white p-6 shadow">
-        <h1 class="text-3xl font-bold">Welcome to the Company Dashboard</h1>
-    </header>
-    <main class="max-w-4xl mx-auto py-8">
-        <section id="overview" class="mb-8 bg-white rounded-lg shadow p-6">
-            <h2 class="text-2xl font-semibold mb-2">Overview</h2>
-            <p class="text-gray-700">This section provides an overview of the company's performance.</p>
-        </section>
-        <section id="analytics" class="mb-8 bg-white rounded-lg shadow p-6">
-            <h2 class="text-2xl font-semibold mb-2">Analytics</h2>
-            <p class="text-gray-700">This section contains analytics data and visualizations.</p>
-        </section>
-        <section id="reports" class="bg-white rounded-lg shadow p-6">
-            <h2 class="text-2xl font-semibold mb-2">Reports</h2>
-            <p class="text-gray-700">This section allows users to generate and view reports.</p>
-        </section>
-    </main>
-    <footer class="bg-blue-700 text-white text-center p-4">
-        <p>&copy; 2023 Company Name. All rights reserved.</p>
-    </footer>
-    <script src="path/to/your/script.js"></script>
+<body class="bg-gray-100 text-gray-900 flex flex-col min-h-screen">
+    <main class="max-w-4xl mx-auto py-8 flex-1 w-full">
+<!-- Solo el bloque del nav, el resto igual -->
+<nav class="relative">
+    <div class="max-w-4xl mx-auto px-4 flex justify-center items-center h-16 relative">
+        <div id="nav-menu" class="flex space-x-12 items-center boldonse-regular relative" style="height: 100%;">
+            <!-- Barra animada -->
+            <span id="nav-underline"
+                  class="absolute bottom-0 left-0 h-1 bg-blue-700 rounded transition-all duration-300 ease-in-out pointer-events-none"
+                  style="width:0;opacity:0;z-index:0;"></span>
+            <a href="#" data-target="inicio" class="nav-link text-gray-700 hover:text-blue-400 text-2x1 font-bold boldonse-regular relative z-10">INICIO</a>
+            <a href="#" data-target="analisis" class="nav-link text-gray-700 hover:text-blue-400 text-2x1 font-bold boldonse-regular relative z-10">DATOS Y GRAFICOS</a>
+            <a href="#" data-target="formularios" class="nav-link text-gray-700 hover:text-blue-400 text-2x1 font-bold boldonse-regular relative z-10">FORMULARIOS</a>
+            <a href="#" data-target="accesos" class="nav-link text-gray-700 hover:text-blue-400 font-bold text-2x1 boldonse-regular relative z-10">ACCESOS DIRECTOS</a>
+        </div>
+    </div>
+</nav>
+<!-- Contenido dinámico -->
+<div id="content-inicio" class="tab-content mt-96">
+    <h2 class="text-6xl boldonse-regular mb-4">Bienvenido a Vergaser PROIASA</h2>
+        <p>Contenido de la página de inicio.</p>
+    </div>
+    <div id="content-analisis" class="tab-content hidden">
+        <h2 class="text-2xl font-bold mb-4">Análisis de Datos</h2>
+        <p>Contenido de análisis de datos.</p>
+    </div>
+    <div id="content-formularios" class="tab-content hidden">
+        <h2 class="text-2xl font-bold mb-4">Formularios</h2>
+        <p>Contenido de formularios.</p>
+    </div>
+    <div id="content-accesos" class="tab-content hidden">
+        <h2 class="text-2xl font-bold mb-4">Accesos Directos</h2>
+        <p>Contenido de accesos directos.</p>
+    </div>
+
+    <script>
+            // Animación de barra underline
+            const navMenu = document.getElementById('nav-menu');
+            const underline = document.getElementById('nav-underline');
+            const links = navMenu.querySelectorAll('.nav-link');
+            let activeLink = links[0];
+
+            function moveUnderlineTo(element, show = true) {
+                const rect = element.getBoundingClientRect();
+                const parentRect = navMenu.getBoundingClientRect();
+                underline.style.left = (rect.left - parentRect.left) + "px";
+                underline.style.width = rect.width + "px";
+                underline.style.opacity = show ? 1 : 0;
+            }
+
+            // Inicializa en el primer link
+window.addEventListener('DOMContentLoaded', () => {
+        moveUnderlineTo(activeLink, true);
+    });
+
+    links.forEach(link => {
+        link.addEventListener('mouseenter', function() {
+            moveUnderlineTo(this, true);
+        });
+        link.addEventListener('mouseleave', function() {
+            moveUnderlineTo(activeLink, true);
+        });
+        link.addEventListener('click', function(e) {
+            e.preventDefault();
+            // Cambia la barra activa
+            activeLink = this;
+            moveUnderlineTo(this, true);
+            // Muestra el contenido correspondiente
+            document.querySelectorAll('.tab-content').forEach(tab => tab.classList.add('hidden'));
+            const target = this.getAttribute('data-target');
+            document.getElementById('content-' + target).classList.remove('hidden');
+        });
+    });
+
+    </script>
+</main>
+<footer class="bg-blue-700 text-white text-center p-4 mt-auto w-full">
+    <p>&copy; 2022 PROIASA. All rights reserved.</p>
+</footer>
+<script src="/java/Dashboard.java"></script>
 </body>
 </html>
