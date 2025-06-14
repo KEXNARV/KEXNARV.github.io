@@ -5,26 +5,28 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Company Dashboard</title>
     <link rel="stylesheet" href="styles/main.css">
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body>
-    <header>
-        <h1>Welcome to the Company Dashboard</h1>
+<body class="bg-gray-100 text-gray-900">
+    <header class="bg-blue-700 text-white p-6 shadow">
+        <h1 class="text-3xl font-bold">Welcome to the Company Dashboard</h1>
     </header>
-    <main>
-        <section id="overview">
-            <h2>Overview</h2>
-            <p>This section provides an overview of the company's performance.</p>
+    <main class="max-w-4xl mx-auto py-8">
+        <section id="overview" class="mb-8 bg-white rounded-lg shadow p-6">
+            <h2 class="text-2xl font-semibold mb-2">Overview</h2>
+            <p class="text-gray-700">This section provides an overview of the company's performance.</p>
         </section>
-        <section id="analytics">
-            <h2>Analytics</h2>
-            <p>This section contains analytics data and visualizations.</p>
+        <section id="analytics" class="mb-8 bg-white rounded-lg shadow p-6">
+            <h2 class="text-2xl font-semibold mb-2">Analytics</h2>
+            <p class="text-gray-700">This section contains analytics data and visualizations.</p>
         </section>
-        <section id="reports">
-            <h2>Reports</h2>
-            <p>This section allows users to generate and view reports.</p>
+        <section id="reports" class="bg-white rounded-lg shadow p-6">
+            <h2 class="text-2xl font-semibold mb-2">Reports</h2>
+            <p class="text-gray-700">This section allows users to generate and view reports.</p>
         </section>
     </main>
-    <footer>
+    <footer class="bg-blue-700 text-white text-center p-4">
         <p>&copy; 2023 Company Name. All rights reserved.</p>
     </footer>
     <script src="path/to/your/script.js"></script>
