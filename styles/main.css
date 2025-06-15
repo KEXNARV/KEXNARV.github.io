@@ -10,4 +10,71 @@
   font-family: 'Boldonse';
 }
 
+:root {
+  --color-lily-white-50: #eafaff;
+  --color-lily-white-100: #cff1fe;
+  --color-lily-white-200: #a5e3fc;
+  --color-lily-white-300: #67cdf9;
+  --color-lily-white-400: #22adee;
+  --color-lily-white-500: #0690d4;
+  --color-lily-white-600: #0871b2;
+  --color-lily-white-700: #0e5c90;
+  --color-lily-white-800: #154c75;
+  --color-lily-white-900: #164063;
+  --color-lily-white-950: #082844;
+}
+
+@keyframes slide-in-right {
+    from {
+        transform: translateX(100%);
+    }
+    to {
+        transform: translateX(0);
+    }
+}
+
+@keyframes slide-in-left {
+    from {
+        transform: translateX(-100%);
+    }
+    to {
+        transform: translateX(0);
+    }
+}
+
+@keyframes slide-out-right {
+    from {
+        transform: translateX(0);
+    }
+    to {
+        transform: translateX(100%);
+    }
+}
+
+@keyframes slide-out-left {
+    from {
+        transform: translateX(0);
+    }
+    to {
+        transform: translateX(-100%);
+    }
+}
+
+.animate-slide-in-right {
+    animation: slide-in-right 0.5s ease-in-out forwards;
+}
+
+.animate-slide-in-left {
+    animation: slide-in-left 0.5s ease-in-out forwards;
+}
+
+.animate-slide-out-right {
+    animation: slide-out-right 0.5s ease-in-out forwards;
+}
+
+.animate-slide-out-left {
+    animation: slide-out-left 0.5s ease-in-out forwards;
+}
+
+
 

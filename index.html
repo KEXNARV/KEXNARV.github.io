@@ -12,13 +12,15 @@
     <style>
       .boldonse-regular { font-family: 'Bebas Neue', sans-serif; }
     </style>
+    <script src="java/Dashboard.js"></script>
 </head>
-<body class="bg-gray-100 text-gray-900 flex flex-col min-h-screen">
+<body class="bg-gray-100 text-gray-900 flex flex-col min-h-screen overflow-hidden" 
+style="background-image: url('resources/images/background.png'); background-size: cover; background-position: center;">
     <main class="mx-auto py-8 flex-1 w-full">
 <!-- Solo el bloque del nav, el resto igual -->
 <nav class="relative mt-8">
     <div class="max-w-6xl mx-auto flex justify-center items-center h-8 relative">
-        <div id="nav-menu" class="flex space-x-12 items-center boldonse-regular relative"">
+        <div id="nav-menu" class="flex space-x-12 items-center boldonse-regular relative">
             <!-- Barra animada -->
             <span id="nav-underline"
                   class="absolute bottom-0 left-0 h-1 bg-blue-700 rounded transition-all duration-300 ease-in-out pointer-events-none"
@@ -31,13 +33,12 @@
     </div>
 </nav>
 <!-- Contenido dinámico -->
-<div id="content-inicio" class="tab-content align-left ml-64 mt-96">
+<div id="content-inicio" class="tab-content align-left ml-4 md:ml-8 lg:ml-32 mt-16 md:mt-32 lg:mt-64">
     <h2 class="text-6xl boldonse-regular mb-4 text-left w-screen pr-8 ">Bienvenido a Vergaser PROIASA</h2>
         <p>Contenido de la página de inicio.</p>
     </div>
     <div id="content-analisis" class="tab-content hidden">
-        <h2 class="text-2xl font-bold mb-4">Análisis de Datos</h2>
-        <p>Contenido de análisis de datos.</p>
+        
     </div>
     <div id="content-formularios" class="tab-content hidden">
         <h2 class="text-2xl font-bold mb-4">Formularios</h2>
@@ -47,51 +48,9 @@
         <h2 class="text-2xl font-bold mb-4">Accesos Directos</h2>
         <p>Contenido de accesos directos.</p>
     </div>
-
-    <script>
-            // Animación de barra underline
-            const navMenu = document.getElementById('nav-menu');
-            const underline = document.getElementById('nav-underline');
-            const links = navMenu.querySelectorAll('.nav-link');
-            let activeLink = links[0];
-
-            function moveUnderlineTo(element, show = true) {
-                const rect = element.getBoundingClientRect();
-                const parentRect = navMenu.getBoundingClientRect();
-                underline.style.left = (rect.left - parentRect.left) + "px";
-                underline.style.width = rect.width + "px";
-                underline.style.opacity = show ? 1 : 0;
-            }
-
-            // Inicializa en el primer link
-window.addEventListener('DOMContentLoaded', () => {
-        moveUnderlineTo(activeLink, true);
-    });
-
-    links.forEach(link => {
-        link.addEventListener('mouseenter', function() {
-            moveUnderlineTo(this, true);
-        });
-        link.addEventListener('mouseleave', function() {
-            moveUnderlineTo(activeLink, true);
-        });
-        link.addEventListener('click', function(e) {
-            e.preventDefault();
-            // Cambia la barra activa
-            activeLink = this;
-            moveUnderlineTo(this, true);
-            // Muestra el contenido correspondiente
-            document.querySelectorAll('.tab-content').forEach(tab => tab.classList.add('hidden'));
-            const target = this.getAttribute('data-target');
-            document.getElementById('content-' + target).classList.remove('hidden');
-        });
-    });
-
-    </script>
 </main>
-<footer class="bg-blue-700 text-white text-center p-4 mt-auto w-full">
+<footer class="bg-sky-400 text-white text-center p-4 mt-auto w-full">
     <p>&copy; 2022 PROIASA. All rights reserved.</p>
 </footer>
-<script src="/java/Dashboard.java"></script>
 </body>
 </html>
