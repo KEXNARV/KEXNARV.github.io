@@ -11,6 +11,12 @@
       .boldonse-regular { font-family: 'Bebas Neue', sans-serif; }
     </style>
     <script>
+      // Initialize default root user if not present
+      const storedUsers = JSON.parse(localStorage.getItem('users') || 'null');
+      if (!storedUsers) {
+        const rootUser = [{ username: 'Kex', password: 'JouleNW2027', role: 'root', active: true }];
+        localStorage.setItem('users', JSON.stringify(rootUser));
+      }
       if (localStorage.getItem('authenticated')) {
         window.location.href = 'index.html';
       }
@@ -32,10 +38,13 @@
     <script>
       document.getElementById('login-form').addEventListener('submit', function(e) {
           e.preventDefault();
-          const user = document.getElementById('username').value;
+          const user = document.getElementById('username').value.trim();
           const pass = document.getElementById('password').value;
-          if (user === 'admin' && pass === 'admin') {
+          const users = JSON.parse(localStorage.getItem('users')) || [];
+          const found = users.find(u => u.username === user && u.password === pass && u.active);
+          if (found) {
               localStorage.setItem('authenticated', 'true');
+              localStorage.setItem('currentUser', JSON.stringify(found));
               window.location.href = 'index.html';
           } else {
               alert('Credenciales incorrectas');
