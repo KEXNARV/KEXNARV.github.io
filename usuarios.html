@@ -14,6 +14,10 @@
     <script src="java/userData.js"></script>
     <script>
       requireRoles(['root']);
+      if (!sessionStorage.getItem('githubToken')) {
+        const t = prompt('GitHub token para actualizar usuarios:');
+        if (t) sessionStorage.setItem('githubToken', t);
+      }
     </script>
 </head>
 <body class="bg-gray-100 text-gray-900 flex flex-col min-h-screen overflow-x-hidden" style="background-image: url('resources/images/background.png'); background-size: cover; background-position: center;">

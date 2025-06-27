@@ -2,7 +2,7 @@ const repoOwner = 'KEXNARV'; // change if forked
 const repoName = 'KEXNARV.github.io';
 const usersFile = 'users.enc';
 
-const githubToken = '';
+let githubToken = sessionStorage.getItem('githubToken') || '';
 
 const userData = {
   users: [],
@@ -20,7 +20,14 @@ const userData = {
     }
   },
   async save() {
-    const token = githubToken;
+    let token = githubToken || sessionStorage.getItem('githubToken');
+    if (!token) {
+      token = prompt('GitHub token para actualizar usuarios:');
+      if (token) {
+        githubToken = token;
+        sessionStorage.setItem('githubToken', token);
+      }
+    }
     if (!token) {
       console.warn('GitHub token no definido');
       return;
@@ -52,5 +59,14 @@ const userData = {
       alert('Error al guardar usuarios en GitHub');
       console.error(err);
     });
+  }
+  ,
+  setToken(token) {
+    githubToken = token;
+    if (token) {
+      sessionStorage.setItem('githubToken', token);
+    } else {
+      sessionStorage.removeItem('githubToken');
+    }
   }
 };
