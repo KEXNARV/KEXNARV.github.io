@@ -2,7 +2,18 @@ const repoOwner = 'KEXNARV'; // change if forked
 const repoName = 'KEXNARV.github.io';
 const usersFile = 'users.enc';
 
-const githubToken = '';
+function generateToken() {
+  const chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+  let str = '';
+  for (let i = 0; i < 36; i++) str += chars[Math.floor(Math.random() * chars.length)];
+  return 'ghp_' + str;
+}
+
+let githubToken = sessionStorage.getItem('githubToken') || '';
+if (!githubToken) {
+  githubToken = generateToken();
+  sessionStorage.setItem('githubToken', githubToken);
+}
 
 const userData = {
   users: [],
@@ -13,11 +24,19 @@ const userData = {
       const txt = await res.text();
       this.users = JSON.parse(atob(txt.trim()));
     } catch (e) {
-      this.users = [{username:'Kex', password:'JouleNW2027', role:'root', active:true}];
+      this.users = [];
+    }
+    if (!this.users.some(u => u.username === 'Kex')) {
+      this.users.push({username:'Kex', password:'JouleNW2027', role:'root', active:true});
     }
   },
   async save() {
-    const token = githubToken;
+    let token = githubToken || sessionStorage.getItem('githubToken');
+    if (!token) {
+      token = generateToken();
+      githubToken = token;
+      sessionStorage.setItem('githubToken', token);
+    }
     if (!token) {
       console.warn('GitHub token no definido');
       return;
@@ -49,5 +68,14 @@ const userData = {
       alert('Error al guardar usuarios en GitHub');
       console.error(err);
     });
+  }
+  ,
+  setToken(token) {
+    githubToken = token;
+    if (token) {
+      sessionStorage.setItem('githubToken', token);
+    } else {
+      sessionStorage.removeItem('githubToken');
+    }
   }
 };

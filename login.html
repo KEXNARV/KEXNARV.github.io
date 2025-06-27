@@ -14,7 +14,7 @@
     <script>
       (async () => {
         await userData.load();
-        if (localStorage.getItem('authenticated')) {
+        if (sessionStorage.getItem('authenticated')) {
           window.location.href = 'index.html';
         }
       })();
@@ -41,8 +41,8 @@
           const pass = document.getElementById('password').value;
           const found = userData.users.find(u => u.username === user && u.password === pass && u.active);
           if (found) {
-              localStorage.setItem('authenticated', 'true');
-              localStorage.setItem('currentUser', JSON.stringify(found));
+              sessionStorage.setItem('authenticated', 'true');
+              sessionStorage.setItem('currentUser', JSON.stringify(found));
               window.location.href = 'index.html';
           } else {
               alert('Credenciales incorrectas');
