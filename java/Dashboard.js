@@ -1,3 +1,12 @@
+if (!localStorage.getItem('authenticated') && !location.pathname.endsWith('login.html')) {
+    window.location.href = 'login.html';
+}
+
+function logout() {
+    localStorage.removeItem('authenticated');
+    window.location.href = 'login.html';
+}
+
 document.addEventListener('DOMContentLoaded', () => {
     const navMenu = document.getElementById('nav-menu');
     const underline = document.getElementById('nav-underline');
@@ -54,4 +63,12 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
     });
+
+    const logoutLink = document.getElementById('logout-link');
+    if (logoutLink) {
+        logoutLink.addEventListener('click', (e) => {
+            e.preventDefault();
+            logout();
+        });
+    }
 });
