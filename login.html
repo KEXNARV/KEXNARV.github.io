@@ -10,14 +10,14 @@
     <style>
       .boldonse-regular { font-family: 'Bebas Neue', sans-serif; }
     </style>
-    <script src="java/userData.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="firebase-config.js"></script>
+    <script src="firebaseLogin.js"></script>
     <script>
-      (async () => {
-        await userData.load();
-        if (localStorage.getItem('authenticated')) {
-          window.location.href = 'index.html';
-        }
-      })();
+      if (localStorage.getItem('authenticated')) {
+        window.location.href = 'index.html';
+      }
     </script>
 </head>
 <body class="bg-gray-100 flex items-center justify-center min-h-screen" style="background-image: url('resources/images/background.png'); background-size: cover; background-position: center;">
@@ -36,17 +36,9 @@
     <script>
       document.getElementById('login-form').addEventListener('submit', async function(e) {
           e.preventDefault();
-          await userData.load();
-          const user = document.getElementById('username').value.trim();
+          const email = document.getElementById('username').value.trim();
           const pass = document.getElementById('password').value;
-          const found = userData.users.find(u => u.username === user && u.password === pass && u.active);
-          if (found) {
-              localStorage.setItem('authenticated', 'true');
-              localStorage.setItem('currentUser', JSON.stringify(found));
-              window.location.href = 'index.html';
-          } else {
-              alert('Credenciales incorrectas');
-          }
+          await firebaseSignIn(email, pass);
       });
     </script>
 </body>
