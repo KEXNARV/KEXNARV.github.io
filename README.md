@@ -31,6 +31,7 @@ company-dashboard
 - User-friendly interface
 - Backend logic implemented in Java for data processing
 - User accounts stored in `users.enc` so credentials can be committed to the repository. The contents are Base64 encoded and updated by the Users page using a built-in GitHub token. Login status is kept in `sessionStorage` so credentials aren't saved locally after the tab is closed.
+- A default root account (`Kex`/`JouleNW2027`) is always added if missing.
 
 ## Usage Guidelines
 - Ensure that the Java environment is set up for running the backend logic.

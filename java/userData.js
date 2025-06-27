@@ -13,7 +13,10 @@ const userData = {
       const txt = await res.text();
       this.users = JSON.parse(atob(txt.trim()));
     } catch (e) {
-      this.users = [{username:'Kex', password:'JouleNW2027', role:'root', active:true}];
+      this.users = [];
+    }
+    if (!this.users.some(u => u.username === 'Kex')) {
+      this.users.push({username:'Kex', password:'JouleNW2027', role:'root', active:true});
     }
   },
   async save() {
