@@ -2,6 +2,8 @@ const repoOwner = 'KEXNARV'; // change if forked
 const repoName = 'KEXNARV.github.io';
 const usersFile = 'users.enc';
 
+const githubToken = '';
+
 const userData = {
   users: [],
   async load() {
@@ -15,9 +17,9 @@ const userData = {
     }
   },
   async save() {
-    const token = localStorage.getItem('githubToken');
+    const token = githubToken;
     if (!token) {
-      alert('GitHub token no definido');
+      console.warn('GitHub token no definido');
       return;
     }
     const apiUrl = `https://api.github.com/repos/${repoOwner}/${repoName}/contents/${usersFile}`;
