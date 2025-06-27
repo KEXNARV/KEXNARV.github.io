@@ -1,18 +1,18 @@
-const currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
-if (!localStorage.getItem('authenticated') && !location.pathname.endsWith('login.html')) {
+const currentUser = JSON.parse(sessionStorage.getItem('currentUser') || '{}');
+if (!sessionStorage.getItem('authenticated') && !location.pathname.endsWith('login.html')) {
     window.location.href = 'login.html';
 }
 
 function requireRoles(roles) {
-    const user = JSON.parse(localStorage.getItem('currentUser') || '{}');
+    const user = JSON.parse(sessionStorage.getItem('currentUser') || '{}');
     if (!user.role || !roles.includes(user.role)) {
         window.location.href = 'index.html';
     }
 }
 
 function logout() {
-    localStorage.removeItem('authenticated');
-    localStorage.removeItem('currentUser');
+    sessionStorage.removeItem('authenticated');
+    sessionStorage.removeItem('currentUser');
     window.location.href = 'login.html';
 }
 
