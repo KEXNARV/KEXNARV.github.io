@@ -2,6 +2,11 @@ const repoOwner = 'KEXNARV'; // change if forked
 const repoName = 'KEXNARV.github.io';
 const usersFile = 'users.enc';
 
+<<<<<<< HEAD
+=======
+const githubToken = '';
+
+>>>>>>> codex/modificar-inicio-de-sesión-para-compatibilidad-con-github-pa
 const userData = {
   users: [],
   async load() {
@@ -15,9 +20,15 @@ const userData = {
     }
   },
   async save() {
+<<<<<<< HEAD
     const token = localStorage.getItem('githubToken');
     if (!token) {
       alert('GitHub token no definido');
+=======
+    const token = githubToken;
+    if (!token) {
+      console.warn('GitHub token no definido');
+>>>>>>> codex/modificar-inicio-de-sesión-para-compatibilidad-con-github-pa
       return;
     }
     const apiUrl = `https://api.github.com/repos/${repoOwner}/${repoName}/contents/${usersFile}`;

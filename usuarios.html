@@ -19,10 +19,13 @@
 <body class="bg-gray-100 text-gray-900 flex flex-col min-h-screen overflow-x-hidden" style="background-image: url('resources/images/background.png'); background-size: cover; background-position: center;">
 <main class="mx-auto py-8 flex-1 w-full max-w-screen-lg px-4 glass rounded-lg">
     <h1 class="text-3xl boldonse-regular mb-4">Usuarios</h1>
+<<<<<<< HEAD
     <form id="token-form" class="mb-4">
         <input id="github-token" type="password" placeholder="GitHub Token" class="border p-2 rounded w-full" />
         <button type="submit" class="mt-2 bg-blue-600 text-white px-4 py-1 rounded">Guardar Token</button>
     </form>
+=======
+>>>>>>> codex/modificar-inicio-de-sesión-para-compatibilidad-con-github-pa
     <form id="add-user-form" class="mb-6 flex flex-wrap gap-2">
         <input id="new-username" type="text" placeholder="Usuario" class="border p-2 rounded flex-1" required>
         <input id="new-password" type="password" placeholder="Contraseña" class="border p-2 rounded flex-1" required>
@@ -53,6 +56,7 @@
 </footer>
 <script>
 const tbody = document.querySelector('#user-table tbody');
+<<<<<<< HEAD
 const tokenInput = document.getElementById('github-token');
 tokenInput.value = localStorage.getItem('githubToken') || '';
 
@@ -61,6 +65,8 @@ document.getElementById('token-form').addEventListener('submit', e => {
     localStorage.setItem('githubToken', tokenInput.value.trim());
     alert('Token guardado');
 });
+=======
+>>>>>>> codex/modificar-inicio-de-sesión-para-compatibilidad-con-github-pa
 
 let users = [];
 

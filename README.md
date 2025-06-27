@@ -30,7 +30,11 @@ company-dashboard
 - Interactive data visualization
 - User-friendly interface
 - Backend logic implemented in Java for data processing
+<<<<<<< HEAD
 - User accounts stored in `users.enc` so credentials can be committed to the repository. The contents are Base64 encoded and can be updated from the Users page using a GitHub token.
+=======
+- Login is handled client-side using Firebase Authentication. Configure your Firebase project in `firebase-config.js`.
+>>>>>>> codex/modificar-inicio-de-sesión-para-compatibilidad-con-github-pa
 
 ## Usage Guidelines
 - Ensure that the Java environment is set up for running the backend logic.
