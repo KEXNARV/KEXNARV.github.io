@@ -1,3 +1,21 @@
+const currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
+if (!localStorage.getItem('authenticated') && !location.pathname.endsWith('login.html')) {
+    window.location.href = 'login.html';
+}
+
+function requireRoles(roles) {
+    const user = JSON.parse(localStorage.getItem('currentUser') || '{}');
+    if (!user.role || !roles.includes(user.role)) {
+        window.location.href = 'index.html';
+    }
+}
+
+function logout() {
+    localStorage.removeItem('authenticated');
+    localStorage.removeItem('currentUser');
+    window.location.href = 'login.html';
+}
+
 document.addEventListener('DOMContentLoaded', () => {
     const navMenu = document.getElementById('nav-menu');
     const underline = document.getElementById('nav-underline');
@@ -15,6 +33,11 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     moveUnderlineTo(activeLink, true);
+
+    const userCard = document.getElementById('user-management-card');
+    if (userCard && !(currentUser.role === 'root' || currentUser.role === 'admin')) {
+        userCard.style.display = 'none';
+    }
 
     links.forEach(link => {
         // 🟦 Hover visual
@@ -54,4 +77,12 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
     });
+
+    const logoutLink = document.getElementById('logout-link');
+    if (logoutLink) {
+        logoutLink.addEventListener('click', (e) => {
+            e.preventDefault();
+            logout();
+        });
+    }
 });
