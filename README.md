@@ -31,6 +31,7 @@ company-dashboard
 - User-friendly interface
 - Backend logic implemented in Java for data processing
 - Login is handled client-side using Firebase Authentication. Configure your Firebase project in `firebase-config.js`.
+- A default root user (`kex@example.com` / `JouleNW2027`) is automatically created for testing.
 
 ## Usage Guidelines
 - Ensure that the Java environment is set up for running the backend logic.
