@@ -11,6 +11,7 @@
       .boldonse-regular { font-family: 'Bebas Neue', sans-serif; }
     </style>
     <script src="java/Dashboard.js"></script>
+    <script src="java/userData.js"></script>
     <script>
       requireRoles(['root']);
     </script>
@@ -18,6 +19,10 @@
 <body class="bg-gray-100 text-gray-900 flex flex-col min-h-screen overflow-x-hidden" style="background-image: url('resources/images/background.png'); background-size: cover; background-position: center;">
 <main class="mx-auto py-8 flex-1 w-full max-w-screen-lg px-4 glass rounded-lg">
     <h1 class="text-3xl boldonse-regular mb-4">Usuarios</h1>
+    <form id="token-form" class="mb-4">
+        <input id="github-token" type="password" placeholder="GitHub Token" class="border p-2 rounded w-full" />
+        <button type="submit" class="mt-2 bg-blue-600 text-white px-4 py-1 rounded">Guardar Token</button>
+    </form>
     <form id="add-user-form" class="mb-6 flex flex-wrap gap-2">
         <input id="new-username" type="text" placeholder="Usuario" class="border p-2 rounded flex-1" required>
         <input id="new-password" type="password" placeholder="Contraseña" class="border p-2 rounded flex-1" required>
@@ -48,9 +53,20 @@
 </footer>
 <script>
 const tbody = document.querySelector('#user-table tbody');
-let users = JSON.parse(localStorage.getItem('users')) || [];
+const tokenInput = document.getElementById('github-token');
+tokenInput.value = localStorage.getItem('githubToken') || '';
 
-function loadUsers() {
+document.getElementById('token-form').addEventListener('submit', e => {
+    e.preventDefault();
+    localStorage.setItem('githubToken', tokenInput.value.trim());
+    alert('Token guardado');
+});
+
+let users = [];
+
+async function loadUsers() {
+    await userData.load();
+    users = userData.users;
     tbody.innerHTML = '';
     users.forEach((u, i) => {
         const tr = document.createElement('tr');
@@ -72,13 +88,14 @@ function loadUsers() {
         tbody.appendChild(tr);
     });
     document.querySelectorAll('.save').forEach(btn => {
-        btn.addEventListener('click', () => {
+        btn.addEventListener('click', async () => {
             const idx = parseInt(btn.getAttribute('data-index'));
             const row = btn.closest('tr');
             users[idx].password = row.querySelector('.pass').value;
             users[idx].role = row.querySelector('.role').value;
             users[idx].active = row.querySelector('.active').checked;
-            localStorage.setItem('users', JSON.stringify(users));
+            userData.users = users;
+            await userData.save();
             if (idx === 0) { // root might change password only
                 users[idx].active = true;
                 users[idx].role = 'root';
@@ -88,7 +105,7 @@ function loadUsers() {
     });
 }
 
-document.getElementById('add-user-form').addEventListener('submit', function(e){
+document.getElementById('add-user-form').addEventListener('submit', async function(e){
     e.preventDefault();
     const username = document.getElementById('new-username').value.trim();
     const password = document.getElementById('new-password').value.trim();
@@ -98,7 +115,8 @@ document.getElementById('add-user-form').addEventListener('submit', function(e){
         return;
     }
     users.push({username, password, role, active: true});
-    localStorage.setItem('users', JSON.stringify(users));
+    userData.users = users;
+    await userData.save();
     e.target.reset();
     loadUsers();
 });

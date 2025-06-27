@@ -10,16 +10,14 @@
     <style>
       .boldonse-regular { font-family: 'Bebas Neue', sans-serif; }
     </style>
+    <script src="java/userData.js"></script>
     <script>
-      // Initialize default root user if not present
-      const storedUsers = JSON.parse(localStorage.getItem('users') || 'null');
-      if (!storedUsers) {
-        const rootUser = [{ username: 'Kex', password: 'JouleNW2027', role: 'root', active: true }];
-        localStorage.setItem('users', JSON.stringify(rootUser));
-      }
-      if (localStorage.getItem('authenticated')) {
-        window.location.href = 'index.html';
-      }
+      (async () => {
+        await userData.load();
+        if (localStorage.getItem('authenticated')) {
+          window.location.href = 'index.html';
+        }
+      })();
     </script>
 </head>
 <body class="bg-gray-100 flex items-center justify-center min-h-screen" style="background-image: url('resources/images/background.png'); background-size: cover; background-position: center;">
@@ -36,12 +34,12 @@
         <button type="submit" class="w-full bg-blue-600 text-white py-2 rounded">Entrar</button>
     </form>
     <script>
-      document.getElementById('login-form').addEventListener('submit', function(e) {
+      document.getElementById('login-form').addEventListener('submit', async function(e) {
           e.preventDefault();
+          await userData.load();
           const user = document.getElementById('username').value.trim();
           const pass = document.getElementById('password').value;
-          const users = JSON.parse(localStorage.getItem('users')) || [];
-          const found = users.find(u => u.username === user && u.password === pass && u.active);
+          const found = userData.users.find(u => u.username === user && u.password === pass && u.active);
           if (found) {
               localStorage.setItem('authenticated', 'true');
               localStorage.setItem('currentUser', JSON.stringify(found));
