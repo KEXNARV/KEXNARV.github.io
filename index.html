@@ -14,9 +14,9 @@
     </style>
     <script src="java/Dashboard.js"></script>
 </head>
-<body class="bg-gray-100 text-gray-900 flex flex-col min-h-screen overflow-hidden" 
+<body class="bg-gray-100 text-gray-900 flex flex-col min-h-screen overflow-x-hidden"
 style="background-image: url('resources/images/background.png'); background-size: cover; background-position: center;">
-    <main class="mx-auto py-8 flex-1 w-full glass rounded-lg">
+    <main class="mx-auto py-8 flex-1 w-full max-w-screen-lg px-4 glass rounded-lg">
 <!-- Solo el bloque del nav, el resto igual -->
 <nav class="relative mt-8 glass px-4 py-2 rounded-lg shadow-lg">
     <div class="max-w-6xl mx-auto flex justify-center items-center h-8 relative">
@@ -33,15 +33,15 @@ style="background-image: url('resources/images/background.png'); background-size
     </div>
 </nav>
 <!-- Contenido dinámico -->
-    <div id="content-inicio" class="tab-content glass p-6 rounded-lg align-left ml-4 md:ml-8 lg:ml-32 mt-16 md:mt-32 lg:mt-64">
-    <h2 class="text-6xl boldonse-regular mb-4 text-left w-screen pr-8 ">Bienvenido a Vergaser PROIASA</h2>
+    <div id="content-inicio" class="tab-content p-6 rounded-lg mt-16 sm:mt-32 lg:mt-64 mx-auto max-w-screen-lg">
+    <h2 class="text-6xl boldonse-regular mb-4 text-left">Bienvenido a Vergaser PROIASA</h2>
         <p>Contenido de la página de inicio.</p>
     </div>
 
-    <div id="content-analisis" class="tab-content glass p-6 hidden mt-12 rounded-lg">
-        <div class="grid grid-cols-4 gap-1 justify-center">
+    <div id="content-analisis" class="tab-content glass p-6 hidden mt-12 rounded-lg max-w-screen-lg mx-auto">
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 justify-center">
 
-    <div class="relative flex w-80 flex-col rounded-xl glass-card text-gray-700 shadow-md">
+    <div class="relative flex w-full flex-col rounded-xl glass-card text-gray-700 shadow-md">
         <div class="relative mx-4 -mt-6 overflow-hidden rounded-xl bg-blue-gray-500 bg-clip-border text-white shadow-lg shadow-blue-gray-500/40 bg-gradient-to-r from-blue-500 to-blue-600">
             <img src="resources/images/tallerbannercard.png" alt="Analisis de Recepciones" class="w-full h-full object-cover">
     </div>
@@ -50,7 +50,7 @@ style="background-image: url('resources/images/background.png'); background-size
         Graficos de Analisis de Recepciones
         </h5>
         <p class="block font-sans text-base font-light leading-relaxed text-inherit antialiased">
-        Graficos de analisis de recepciones, donde se muestran los datos de las recepciones de la empresa, incluyendo cantidades, fechas y otros detalles relevantes. Estos graficos permiten un analisis visual de las tendencias y patrones en las recepciones a lo largo del tiempo.
+        Revisa las principales estadísticas de recepción mediante gráficos interactivos.
         </p>
     </div>
     <div class="p-6 pt-0">
@@ -60,7 +60,7 @@ style="background-image: url('resources/images/background.png'); background-size
     </div>
     </div>
 
-    <div class="relative flex w-80 flex-col rounded-xl glass-card text-gray-700 shadow-md">
+    <div class="relative flex w-full flex-col rounded-xl glass-card text-gray-700 shadow-md">
         <div class="relative mx-4 -mt-6 overflow-hidden rounded-xl bg-blue-gray-500 bg-clip-border text-white shadow-lg shadow-blue-gray-500/40 bg-gradient-to-r from-blue-500 to-blue-600">
             <img src="resources/images/tallerbannercard.png" alt="Analisis de Recepciones" class="w-full h-full object-cover">
     </div>
@@ -79,7 +79,7 @@ style="background-image: url('resources/images/background.png'); background-size
     </div>
     </div>
 
-    <div class="relative flex w-80 flex-col rounded-xl glass-card text-gray-700 shadow-md">
+    <div class="relative flex w-full flex-col rounded-xl glass-card text-gray-700 shadow-md">
         <div class="relative mx-4 -mt-6 overflow-hidden rounded-xl bg-blue-gray-500 bg-clip-border text-white shadow-lg shadow-blue-gray-500/40 bg-gradient-to-r from-blue-500 to-blue-600">
             <img src="resources/images/tallerbannercard.png" alt="Analisis de Recepciones" class="w-full h-full object-cover">
     </div>
@@ -98,7 +98,7 @@ style="background-image: url('resources/images/background.png'); background-size
     </div>
     </div>
 
-    <div class="relative flex w-80 flex-col rounded-xl glass-card text-gray-700 shadow-md">
+    <div class="relative flex w-full flex-col rounded-xl glass-card text-gray-700 shadow-md">
         <div class="relative mx-4 -mt-6 overflow-hidden rounded-xl bg-blue-gray-500 bg-clip-border text-white shadow-lg shadow-blue-gray-500/40 bg-gradient-to-r from-blue-500 to-blue-600">
             <img src="resources/images/tallerbannercard.png" alt="Analisis de Recepciones" class="w-full h-full object-cover">
     </div>
@@ -121,13 +121,13 @@ style="background-image: url('resources/images/background.png'); background-size
 
     </div>
 
-    <div id="content-formularios" class="tab-content glass p-6 hidden rounded-lg">
+    <div id="content-formularios" class="tab-content glass p-6 hidden rounded-lg max-w-screen-lg mx-auto">
         <h2 class="text-2xl font-bold mb-4">Formularios</h2>
         <p>Contenido de formularios.</p>
     </div>
     
-    <div id="content-accesos" class="tab-content glass p-6 hidden rounded-lg">
-        <div class="grid gap-4 mx-auto mt-12" style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); max-width: calc(6 * 200px);">
+    <div id="content-accesos" class="tab-content glass p-6 hidden rounded-lg max-w-screen-lg mx-auto">
+        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mx-auto mt-12 max-w-screen-lg">
               <!-- Card 1 -->
         <div class=" glass-card rounded-xl shadow-lg overflow-hidden flex flex-col">
             <!-- Imagen -->
@@ -139,21 +139,23 @@ style="background-image: url('resources/images/background.png'); background-size
             <h3 class="text-lg font-semibold text-gray-800 mb-2">Ordenes de recepción</h3>
             <p class="text-gray-600 text-sm">Ver y editar registros de ordenes de recepción</p>
             <br>
-            <a href="basederecepciones.html" class="mt-auto inline-block w-1/4 rounded-md bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700 transition-colors">
+            <a href="basederecepciones.html" class="mt-auto inline-block w-full rounded-md bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700 transition-colors text-center">
                 editar
             </a>
             </div>
         </div>
               <!-- Card 1 -->
-        <div class="glass-card rounded-xl shadow-lg overflow-hidden flex flex-col">
-    <!-- Imagen -->
+        <div id="user-management-card" class="glass-card rounded-xl shadow-lg overflow-hidden flex flex-col">
             <div class="overflow-hidden">
-            <img src="resources/images/comingsoon.png" alt="Imagen 1" class="w-full h-full object-cover">
+                <img src="resources/images/comingsoon.png" alt="Usuarios" class="w-full h-full object-cover">
             </div>
-            <!-- Contenido -->
             <div class="p-4 flex-1 flex flex-col justify-between">
-            <h3 class="text-lg font-semibold text-gray-800 mb-2">Título de la Card</h3>
-            <p class="text-gray-600 text-sm">Descripción breve de esta tarjeta. Aquí se pueden poner detalles o un resumen del contenido.</p>
+                <h3 class="text-lg font-semibold text-gray-800 mb-2">Usuarios</h3>
+                <p class="text-gray-600 text-sm">Agregar o modificar usuarios del sistema.</p>
+                <br>
+                <a href="usuarios.html" class="mt-auto inline-block w-full rounded-md bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700 transition-colors text-center">
+                    administrar
+                </a>
             </div>
         </div>
       <!-- Card 1 -->
@@ -185,7 +187,9 @@ style="background-image: url('resources/images/background.png'); background-size
     </div>
 </main>
 <footer class="bg-transparent text-white text-left p-4 mt-auto w-full">
-    <p class="text-black">&copy; 2025 PROIASA. All rights reserved.</p>
+    <p class="text-black">&copy; 2025 PROIASA. All rights reserved.
+        <a href="#" id="logout-link" class="text-blue-600 ml-4">Cerrar sesi&oacute;n</a>
+    </p>
 </footer>
 </body>
 </html>
