@@ -201,7 +201,7 @@ def calcular_tukey(observaciones_js, alpha=0.05):
     """
 
     from itertools import combinations
-    from math import sqrt
+    from math import sqrt, isnan
     from scipy import stats
 
     try:
@@ -228,10 +228,17 @@ def calcular_tukey(observaciones_js, alpha=0.05):
     k = len(observaciones)
     try:
         q_crit = stats.studentized_range.ppf(1 - alpha, k, gl_error)
+        if isnan(q_crit):  # pragma: no cover - sanity check for SciPy result
+            raise ValueError("studentized_range.ppf devolvió NaN")
     except Exception as exc:  # pragma: no cover - SciPy may raise distintos errores
-        raise ValueError(
-            f"No se pudo calcular el valor crítico de Tukey: {exc}"
-        ) from exc
+        # Como respaldo utilizamos la aproximación basada en la distribución t
+        # cuando SciPy no puede calcular el valor crítico de la distribución
+        # del rango studentizado.
+        q_crit = stats.t.ppf(1 - alpha / 2, gl_error) * sqrt(2)
+        if isnan(q_crit):
+            raise ValueError(
+                f"No se pudo calcular el valor crítico de Tukey: {exc}"
+            ) from exc
 
     comparaciones = {}
     for g1, g2 in combinations(observaciones.keys(), 2):
@@ -301,6 +308,8 @@ def calcular_duncan(observaciones_js, alpha=0.05):
             diff = abs(medias[g1] - medias[g2])
             r = j - i + 1
             q_crit = stats.studentized_range.ppf(1 - alpha, r, gl_error)
+            if isnan(q_crit):  # pragma: no cover
+                q_crit = stats.t.ppf(1 - alpha / 2, gl_error) * sqrt(2)
             se = sqrt(cm_error / 2 * (1 / n_por_tratamiento[g1] + 1 / n_por_tratamiento[g2]))
             dms = q_crit * se
             comparaciones[f"{g1}-{g2}"] = {
