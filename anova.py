@@ -177,3 +177,62 @@ def calcular_lsd(observaciones_js, alpha=0.05):
         't_crit': t_crit,
         'comparaciones': comparaciones,
     }
+
+
+def calcular_tukey(observaciones_js, alpha=0.05):
+    """Realiza la prueba de comparaciones múltiples de Tukey (HSD).
+
+    Parameters
+    ----------
+    observaciones_js : dict or JsProxy
+        Mapeo de tratamientos a listas de observaciones.
+    alpha : float, optional
+        Nivel de significancia utilizado para obtener el valor crítico
+        de la distribución del rango studentizado. Por defecto 0.05.
+
+    Returns
+    -------
+    dict
+        Información de las comparaciones por pares. Para cada par de grupos se
+        indican la diferencia absoluta de medias, el error estándar, el valor
+        crítico *q*, la HSD calculada y si la diferencia es significativa.
+    """
+
+    from itertools import combinations
+    from math import sqrt
+    from scipy import stats
+
+    try:
+        observaciones = observaciones_js.to_py()
+    except AttributeError:
+        observaciones = observaciones_js
+
+    anova_res = run_anova(observaciones)
+    medias = anova_res['group_means']
+    n_por_tratamiento = {k: len(v) for k, v in observaciones.items()}
+    cm_error = anova_res['CM_E']
+    gl_error = anova_res['GL_E']
+
+    k = len(observaciones)
+    q_crit = stats.studentized_range.ppf(1 - alpha, k, gl_error)
+
+    comparaciones = {}
+    for g1, g2 in combinations(observaciones.keys(), 2):
+        diff = abs(medias[g1] - medias[g2])
+        se = sqrt(cm_error / 2 * (1 / n_por_tratamiento[g1] + 1 / n_por_tratamiento[g2]))
+        hsd = q_crit * se
+        comparaciones[f"{g1}-{g2}"] = {
+            'grupo1': g1,
+            'grupo2': g2,
+            'diff': diff,
+            'se': se,
+            'q_crit': q_crit,
+            'hsd': hsd,
+            # Diferencia significativa cuando |Ȳi - Ȳj| >= HSD
+            'significant': diff >= hsd,
+        }
+
+    return {
+        'q_crit': q_crit,
+        'comparaciones': comparaciones,
+    }
