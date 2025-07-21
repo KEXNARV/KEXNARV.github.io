@@ -215,8 +215,23 @@ def calcular_tukey(observaciones_js, alpha=0.05):
     cm_error = anova_res['CM_E']
     gl_error = anova_res['GL_E']
 
+    if len(observaciones) < 2:
+        raise ValueError(
+            "Se requieren al menos dos grupos para realizar la prueba de Tukey."
+        )
+
+    if gl_error <= 0:
+        raise ValueError(
+            "Los grados de libertad deben ser mayores que 0 para la prueba de Tukey."
+        )
+
     k = len(observaciones)
-    q_crit = stats.studentized_range.ppf(1 - alpha, k, gl_error)
+    try:
+        q_crit = stats.studentized_range.ppf(1 - alpha, k, gl_error)
+    except Exception as exc:  # pragma: no cover - SciPy may raise distintos errores
+        raise ValueError(
+            f"No se pudo calcular el valor crítico de Tukey: {exc}"
+        ) from exc
 
     comparaciones = {}
     for g1, g2 in combinations(observaciones.keys(), 2):
