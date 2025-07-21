@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ANOVA Table</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jstat/1.9.4/jstat.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/pyodide/v0.24.1/full/pyodide.js"></script>
 </head>
 <body class="bg-gray-100 text-gray-800 p-8">
     <div class="max-w-3xl mx-auto bg-white shadow rounded p-6">
@@ -69,8 +69,50 @@ function addColumn() {
 
 document.getElementById('addRow').addEventListener('click', addRow);
 document.getElementById('addColumn').addEventListener('click', addColumn);
+const pyodideReady = loadPyodide({ indexURL: 'https://cdn.jsdelivr.net/pyodide/v0.24.1/full/' });
 
-document.getElementById('runAnova').addEventListener('click', function() {
+async function runAnovaPy(groups) {
+    const pyodide = await pyodideReady;
+    await pyodide.loadPackage('scipy');
+    pyodide.globals.set('groups', groups);
+    pyodide.runPython(`
+from scipy import stats
+group_names = list(groups.keys())
+k = len(group_names)
+n_i_list = [len(groups[g]) for g in group_names]
+N = sum(n_i_list)
+Y_total = sum(sum(groups[g]) for g in group_names)
+SC_T = sum(y*y for g in group_names for y in groups[g]) - (Y_total**2) / N
+SC_TRAT = sum((sum(groups[g])**2)/len(groups[g]) for g in group_names) - (Y_total**2)/N
+SC_E = SC_T - SC_TRAT
+GL_TRAT = k - 1
+GL_E = N - k
+GL_T = N - 1
+CM_TRAT = SC_TRAT / GL_TRAT
+CM_E = SC_E / GL_E
+F0 = CM_TRAT / CM_E
+p_value = stats.f.sf(F0, GL_TRAT, GL_E)
+group_means = {g: sum(groups[g])/len(groups[g]) for g in group_names}
+result = {
+    'group_means': group_means,
+    'SC_TRAT': SC_TRAT,
+    'SC_E': SC_E,
+    'SC_T': SC_T,
+    'GL_TRAT': GL_TRAT,
+    'GL_E': GL_E,
+    'GL_T': GL_T,
+    'CM_TRAT': CM_TRAT,
+    'CM_E': CM_E,
+    'F0': F0,
+    'p_value': p_value,
+}
+`);
+    const result = pyodide.globals.get('result').toJs();
+    pyodide.globals.delete('result');
+    return result;
+}
+
+document.getElementById('runAnova').addEventListener('click', async function() {
     const rows = document.querySelectorAll('#dataTable tbody tr');
     const groups = {};
     rows.forEach(row => {
@@ -88,53 +130,28 @@ document.getElementById('runAnova').addEventListener('click', function() {
         document.getElementById('anovaResult').textContent = 'Se requieren al menos dos grupos con valores.';
         return;
     }
-    const allValues = [];
-    groupNames.forEach(g => allValues.push(...groups[g]));
-    const N = allValues.length;
-    const grandMean = allValues.reduce((a,b) => a + b, 0) / N;
 
-    let ssBetween = 0;
-    let ssWithin = 0;
-    const groupMeans = {};
-    groupNames.forEach(g => {
-        const values = groups[g];
-        const n = values.length;
-        const mean = values.reduce((a,b) => a + b, 0) / n;
-        groupMeans[g] = mean;
-        ssBetween += n * Math.pow(mean - grandMean, 2);
-        values.forEach(v => {
-            ssWithin += Math.pow(v - mean, 2);
-        });
-    });
+    const result = await runAnovaPy(groups);
+    const groupMeans = result.group_means;
 
-    const dfBetween = groupNames.length - 1;
-    const dfWithin = N - groupNames.length;
-    const msBetween = ssBetween / dfBetween;
-    const msWithin = ssWithin / dfWithin;
-    const F0 = msBetween / msWithin;
-    const pValue = 1 - jStat.centralF.cdf(F0, dfBetween, dfWithin);
-
-    const ssTotal = ssBetween + ssWithin;
-    const dfTotal = N - 1;
-
-    // Table of group means
     let html = '<h2 class="font-semibold mb-2">Promedios</h2>';
     html += '<table class="mb-4 min-w-full text-sm text-center"><thead><tr>';
     html += '<th>Grupo</th><th>Media</th></tr></thead><tbody>';
-    groupNames.forEach(g => {
+    Object.keys(groupMeans).forEach(g => {
         html += `<tr><td>${g}</td><td>${groupMeans[g].toFixed(4)}</td></tr>`;
     });
     html += '</tbody></table>';
 
     html += '<table class="min-w-full text-sm text-center">';
     html += '<thead><tr><th>FV</th><th>SC</th><th>GL</th><th>CM</th><th>F0</th><th>Valor-p</th></tr></thead><tbody>';
-    html += `<tr><td>Tratamientos</td><td>${ssBetween.toFixed(4)}</td><td>${dfBetween}</td><td>${msBetween.toFixed(4)}</td><td>${F0.toFixed(4)}</td><td>${pValue.toFixed(4)}</td></tr>`;
-    html += `<tr><td>Error</td><td>${ssWithin.toFixed(4)}</td><td>${dfWithin}</td><td>${msWithin.toFixed(4)}</td><td></td><td></td></tr>`;
-    html += `<tr><td>Total</td><td>${ssTotal.toFixed(4)}</td><td>${dfTotal}</td><td></td><td></td><td></td></tr>`;
+    html += `<tr><td>Tratamientos</td><td>${result.SC_TRAT.toFixed(4)}</td><td>${result.GL_TRAT}</td><td>${result.CM_TRAT.toFixed(4)}</td><td>${result.F0.toFixed(4)}</td><td>${result.p_value.toFixed(4)}</td></tr>`;
+    html += `<tr><td>Error</td><td>${result.SC_E.toFixed(4)}</td><td>${result.GL_E}</td><td>${result.CM_E.toFixed(4)}</td><td></td><td></td></tr>`;
+    html += `<tr><td>Total</td><td>${result.SC_T.toFixed(4)}</td><td>${result.GL_T}</td><td></td><td></td><td></td></tr>`;
     html += '</tbody></table>';
 
     document.getElementById('anovaResult').innerHTML = html;
 });
+
 </script>
 </body>
 </html>
