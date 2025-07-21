@@ -17,3 +17,10 @@ python gui.py
 Al ejecutar la aplicación se abrirá la interfaz gráfica. Tras introducir los datos y pulsar **Mostrar resultados** se abrirá una ventana con el reporte en texto.
 
 La función `generate_html` produce además un archivo con todas las tablas, incluida una nueva sección que muestra las diferencias pareadas y sus pesos utilizadas por la prueba de Shapiro-Wilk.
+
+Para generar el archivo HTML es necesario contar con la biblioteca **SciPy** instalada:
+
+```bash
+pip install scipy
+python run_analysis.py
+```

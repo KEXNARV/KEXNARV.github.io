@@ -157,7 +157,12 @@ def main():
         "D": [10, 12, 11, 9],
     }
 
-    html = generate_html(groups)
+    try:
+        html = generate_html(groups)
+    except ModuleNotFoundError as exc:
+        print("Se requiere instalar SciPy para generar el informe:", exc)
+        return
+
     with open("index.html", "w", encoding="utf-8") as f:
         f.write(html)
     print("Archivo index.html generado con los resultados")
