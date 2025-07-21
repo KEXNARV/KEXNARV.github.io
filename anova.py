@@ -360,10 +360,35 @@ def prueba_shapiro(observaciones_js):
     residuos = [y - medias[g] for g, vals in observaciones.items() for y in vals]
 
     stat, p_value = stats.shapiro(residuos)
+
+    # Detalle para la tabla del estadístico
+    residuos_ordenados = sorted(residuos)
+    n = len(residuos)
+    pares = n // 2
+
+    # Coeficientes aproximados a partir de la distribución normal
+    from statistics import NormalDist
+
+    m = [NormalDist().inv_cdf((i - 0.375) / (n + 0.25)) for i in range(1, n + 1)]
+    norm_factor = sum(x * x for x in m) ** 0.5
+    a = [val / norm_factor for val in m]
+
+    tabla = []
+    for i in range(pares):
+        diff = residuos_ordenados[-(i + 1)] - residuos_ordenados[i]
+        ai = a[i]
+        tabla.append({
+            'i': i + 1,
+            'ai': ai,
+            'diff': diff,
+            'ai_diff': ai * diff,
+        })
+
     return {
-        'n': len(residuos),
+        'n': n,
         'w': stat,
         'p_value': p_value,
+        'tabla': tabla,
     }
 
 
