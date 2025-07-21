@@ -71,8 +71,8 @@ def generate_html(groups):
 
     html.append("<h2>Prueba de normalidad (Shapiro-Wilk)</h2>")
     html.append(
-        "<table><thead><tr><th>W</th><th>Valor-p</th></tr></thead>"
-        f"<tbody><tr><td>{shapiro['w']:.4f}</td><td>{shapiro['p_value']:.4f}</td></tr></tbody></table>"
+        "<table><thead><tr><th>N</th><th>W</th><th>Valor-p</th></tr></thead>"
+        f"<tbody><tr><td>{shapiro['n']}</td><td>{shapiro['w']:.4f}</td><td>{shapiro['p_value']:.4f}</td></tr></tbody></table>"
     )
 
     html.append("<h3>Diferencias pareadas utilizadas</h3>")
@@ -129,7 +129,9 @@ def format_text(groups):
     lines.append(f"Total: {anova_res['SC_T']:.4f}, {anova_res['GL_T']}")
 
     lines.append("\nPrueba de normalidad (Shapiro-Wilk)")
-    lines.append(f"W={shapiro['w']:.4f}, p-value={shapiro['p_value']:.4f}")
+    lines.append(
+        f"n={shapiro['n']}, W={shapiro['w']:.4f}, p-value={shapiro['p_value']:.4f}"
+    )
 
     def comps(title, res, key):
         lines.append(f"\n{title}")
