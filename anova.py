@@ -42,8 +42,17 @@ def run_anova(groups_js):
     }
 
 
-def calculos_por_tratamiento(observaciones):
-    """Calcula estadísticas básicas a partir de las observaciones."""
+def calculos_por_tratamiento(observaciones_js):
+    """Calcula estadísticas básicas a partir de las observaciones.
+
+    The input may come from JavaScript via Pyodide, in which case it will be a
+    ``JsProxy``.  Handle both that and regular Python ``dict`` input.
+    """
+
+    try:
+        observaciones = observaciones_js.to_py()
+    except AttributeError:
+        observaciones = observaciones_js
 
     # Datos de observaciones por tratamiento (método de ensamble)
 
