@@ -228,16 +228,19 @@ def calcular_tukey(observaciones_js, alpha=0.05):
 
     k = len(observaciones)
 
-    # ``stats.studentized_range.ppf`` no siempre está disponible o puede
-    # fallar en algunos entornos (por ejemplo, dentro de Pyodide). Para
-    # evitar el error observado se usa directamente la aproximación basada
-    # en la distribución *t*. Esta aproximación suele ser suficiente para
-    # la mayoría de los casos y evita que ``ppf`` arroje valores NaN.
-    q_crit = stats.t.ppf(1 - alpha / 2, gl_error) * sqrt(2)
-    if isnan(q_crit):
-        raise ValueError(
-            "No se pudo calcular el valor crítico de Tukey"
-        )
+    try:
+        q_crit = stats.studentized_range.ppf(1 - alpha, k, gl_error)
+        if isnan(q_crit):  # pragma: no cover - sanity check for SciPy result
+            raise ValueError("studentized_range.ppf devolvió NaN")
+    except Exception as exc:  # pragma: no cover - SciPy may raise distintos errores
+        # Como respaldo utilizamos la aproximación basada en la distribución t
+        # cuando SciPy no puede calcular el valor crítico de la distribución
+        # del rango studentizado.
+        q_crit = stats.t.ppf(1 - alpha / 2, gl_error) * sqrt(2)
+        if isnan(q_crit):
+            raise ValueError(
+                f"No se pudo calcular el valor crítico de Tukey: {exc}"
+            ) from exc
 
     comparaciones = {}
     for g1, g2 in combinations(observaciones.keys(), 2):
@@ -306,15 +309,16 @@ def calcular_duncan(observaciones_js, alpha=0.05):
             g2 = orden[j]
             diff = abs(medias[g1] - medias[g2])
             r = j - i + 1
-            # Evitamos llamar a ``studentized_range.ppf`` para mejorar la
-            # compatibilidad entre entornos y reducir la probabilidad de
-            # obtener valores NaN. Se utiliza la aproximación con la
-            # distribución *t*.
-            q_crit = stats.t.ppf(1 - alpha / 2, gl_error) * sqrt(2)
-            if isnan(q_crit):
-                raise ValueError(
-                    "No se pudo calcular el valor crítico de Duncan"
-                )
+            try:
+                q_crit = stats.studentized_range.ppf(1 - alpha, r, gl_error)
+                if isnan(q_crit):  # pragma: no cover - sanity check
+                    raise ValueError("studentized_range.ppf devolvió NaN")
+            except Exception as exc:  # pragma: no cover - SciPy may fail
+                q_crit = stats.t.ppf(1 - alpha / 2, gl_error) * sqrt(2)
+                if isnan(q_crit):
+                    raise ValueError(
+                        f"No se pudo calcular el valor crítico de Duncan: {exc}"
+                    ) from exc
             se = sqrt(cm_error / 2 * (1 / n_por_tratamiento[g1] + 1 / n_por_tratamiento[g2]))
             dms = q_crit * se
             comparaciones[f"{g1}-{g2}"] = {
