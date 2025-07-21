@@ -15,12 +15,39 @@
                 <tr>
                     <th class="border px-4 py-2">Grupo</th>
                     <th class="border px-4 py-2">Valor 1</th>
+                    <th class="border px-4 py-2">Valor 2</th>
+                    <th class="border px-4 py-2">Valor 3</th>
+                    <th class="border px-4 py-2">Valor 4</th>
                 </tr>
             </thead>
             <tbody>
                 <tr>
-                    <td class="border px-2 py-1"><input class="group w-full p-1" type="text" /></td>
-                    <td class="border px-2 py-1"><input class="value w-full p-1" type="number" step="any" /></td>
+                    <td class="border px-2 py-1"><input class="group w-full p-1" type="text" value="A" /></td>
+                    <td class="border px-2 py-1"><input class="value w-full p-1" type="number" step="any" value="6" /></td>
+                    <td class="border px-2 py-1"><input class="value w-full p-1" type="number" step="any" value="8" /></td>
+                    <td class="border px-2 py-1"><input class="value w-full p-1" type="number" step="any" value="7" /></td>
+                    <td class="border px-2 py-1"><input class="value w-full p-1" type="number" step="any" value="8" /></td>
+                </tr>
+                <tr>
+                    <td class="border px-2 py-1"><input class="group w-full p-1" type="text" value="B" /></td>
+                    <td class="border px-2 py-1"><input class="value w-full p-1" type="number" step="any" value="7" /></td>
+                    <td class="border px-2 py-1"><input class="value w-full p-1" type="number" step="any" value="9" /></td>
+                    <td class="border px-2 py-1"><input class="value w-full p-1" type="number" step="any" value="10" /></td>
+                    <td class="border px-2 py-1"><input class="value w-full p-1" type="number" step="any" value="8" /></td>
+                </tr>
+                <tr>
+                    <td class="border px-2 py-1"><input class="group w-full p-1" type="text" value="C" /></td>
+                    <td class="border px-2 py-1"><input class="value w-full p-1" type="number" step="any" value="11" /></td>
+                    <td class="border px-2 py-1"><input class="value w-full p-1" type="number" step="any" value="16" /></td>
+                    <td class="border px-2 py-1"><input class="value w-full p-1" type="number" step="any" value="11" /></td>
+                    <td class="border px-2 py-1"><input class="value w-full p-1" type="number" step="any" value="13" /></td>
+                </tr>
+                <tr>
+                    <td class="border px-2 py-1"><input class="group w-full p-1" type="text" value="D" /></td>
+                    <td class="border px-2 py-1"><input class="value w-full p-1" type="number" step="any" value="10" /></td>
+                    <td class="border px-2 py-1"><input class="value w-full p-1" type="number" step="any" value="12" /></td>
+                    <td class="border px-2 py-1"><input class="value w-full p-1" type="number" step="any" value="11" /></td>
+                    <td class="border px-2 py-1"><input class="value w-full p-1" type="number" step="any" value="9" /></td>
                 </tr>
             </tbody>
         </table>
@@ -76,6 +103,38 @@ async function runAnovaPy(groups) {
     await pyodide.loadPackage('scipy');
     pyodide.globals.set('groups', groups);
     pyodide.runPython(`
+# Paso 1: Definir los grupos de tratamiento y sus observaciones
+# observaciones = {
+#     'A': [6, 8, 7, 8],
+#     'B': [7, 9, 10, 8],
+#     'C': [11, 16, 11, 13],
+#     'D': [10, 12, 11, 9]
+# }
+# Paso 2: Calcular el total de observaciones por tratamiento (Yi·)
+# total_por_tratamiento = {k: sum(v) for k, v in observaciones.items()}
+# Paso 3: Calcular el número de observaciones por tratamiento (ni)
+# n_por_tratamiento = {k: len(v) for k, v in observaciones.items()}
+# Paso 4: Calcular el total general de todas las observaciones (Y··)
+# total_general = sum(total_por_tratamiento.values())
+# Paso 5: Calcular el número total de observaciones (N)
+# N = sum(n_por_tratamiento.values())
+# Paso 6: Calcular la suma de cuadrados total (SC_T)
+# SC_T = sum(y**2 for grupo in observaciones.values() for y in grupo) - (total_general**2) / N
+# Paso 7: Calcular la suma de cuadrados de tratamientos (SC_TRAT)
+# SC_TRAT = sum((total_por_tratamiento[k]**2) / n_por_tratamiento[k] for k in observaciones) - (total_general**2) / N
+# Paso 8: Calcular la suma de cuadrados del error (SC_E)
+# SC_E = SC_T - SC_TRAT
+# Paso 9: Calcular los grados de libertad
+# GL_TRAT = k - 1                      # donde k = número de tratamientos
+# GL_E = N - k
+# GL_T = N - 1
+# Paso 10: Calcular los cuadrados medios
+# CM_TRAT = SC_TRAT / GL_TRAT
+# CM_E = SC_E / GL_E
+# Paso 11: Calcular el estadístico F
+# F0 = CM_TRAT / CM_E
+# Paso 12: Obtener el valor-p correspondiente al F calculado
+# p_value = 1 - stats.f.cdf(F0, GL_TRAT, GL_E)
 from scipy import stats
 group_names = list(groups.keys())
 k = len(group_names)
