@@ -1,6 +1,16 @@
 def run_anova(groups_js):
+    """Run one-way ANOVA from a groups mapping.
+
+    The input may come directly from JavaScript via Pyodide. In that case it is
+    a JsProxy object with a ``to_py`` method. When called from regular Python it
+    can be a normal ``dict``. This helper ensures we always work with a Python
+    ``dict``.
+    """
     from scipy import stats
-    groups = groups_js.to_py()
+    try:
+        groups = groups_js.to_py()
+    except AttributeError:
+        groups = groups_js
     group_names = list(groups.keys())
     k = len(group_names)
     n_i_list = [len(groups[g]) for g in group_names]
