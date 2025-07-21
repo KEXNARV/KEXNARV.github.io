@@ -111,22 +111,25 @@ document.getElementById('runAnova').addEventListener('click', function() {
     const dfWithin = N - groupNames.length;
     const msBetween = ssBetween / dfBetween;
     const msWithin = ssWithin / dfWithin;
-    const F = msBetween / msWithin;
-    const pValue = 1 - jStat.centralF.cdf(F, dfBetween, dfWithin);
+    const F0 = msBetween / msWithin;
+    const pValue = 1 - jStat.centralF.cdf(F0, dfBetween, dfWithin);
 
     const ssTotal = ssBetween + ssWithin;
     const dfTotal = N - 1;
 
-    let html = '<h2 class="font-semibold mb-2">Promedios</h2><ul class="mb-4">';
+    // Table of group means
+    let html = '<h2 class="font-semibold mb-2">Promedios</h2>';
+    html += '<table class="mb-4 min-w-full text-sm text-center"><thead><tr>';
+    html += '<th>Grupo</th><th>Media</th></tr></thead><tbody>';
     groupNames.forEach(g => {
-        html += `<li>${g}: ${groupMeans[g].toFixed(4)}</li>`;
+        html += `<tr><td>${g}</td><td>${groupMeans[g].toFixed(4)}</td></tr>`;
     });
-    html += '</ul>';
+    html += '</tbody></table>';
 
     html += '<table class="min-w-full text-sm text-center">';
     html += '<thead><tr><th>FV</th><th>SC</th><th>GL</th><th>CM</th><th>F0</th><th>Valor-p</th></tr></thead><tbody>';
-    html += `<tr><td>Entre grupos</td><td>${ssBetween.toFixed(4)}</td><td>${dfBetween}</td><td>${msBetween.toFixed(4)}</td><td>${F.toFixed(4)}</td><td>${pValue.toFixed(4)}</td></tr>`;
-    html += `<tr><td>Dentro de grupos</td><td>${ssWithin.toFixed(4)}</td><td>${dfWithin}</td><td>${msWithin.toFixed(4)}</td><td></td><td></td></tr>`;
+    html += `<tr><td>Tratamientos</td><td>${ssBetween.toFixed(4)}</td><td>${dfBetween}</td><td>${msBetween.toFixed(4)}</td><td>${F0.toFixed(4)}</td><td>${pValue.toFixed(4)}</td></tr>`;
+    html += `<tr><td>Error</td><td>${ssWithin.toFixed(4)}</td><td>${dfWithin}</td><td>${msWithin.toFixed(4)}</td><td></td><td></td></tr>`;
     html += `<tr><td>Total</td><td>${ssTotal.toFixed(4)}</td><td>${dfTotal}</td><td></td><td></td><td></td></tr>`;
     html += '</tbody></table>';
 
