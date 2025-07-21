@@ -5,7 +5,7 @@ from anova import (
     calcular_tukey,
     calcular_duncan,
     prueba_shapiro,
-    tabla_shapiro,
+    prueba_bartlett,
 )
 
 
@@ -16,7 +16,7 @@ def generate_html(groups):
     tukey = calcular_tukey(groups)
     duncan = calcular_duncan(groups)
     shapiro = prueba_shapiro(groups)
-    shapiro_table = tabla_shapiro(groups)
+    bartlett = prueba_bartlett(groups)
 
     html = [
         "<!DOCTYPE html>",
@@ -83,13 +83,17 @@ def generate_html(groups):
         )
     html.append("</tbody></table>")
 
-    html.append("<h3>Diferencias pareadas utilizadas</h3>")
+    html.append("<h2>Prueba de homogeneidad (Bartlett)</h2>")
     html.append(
-        "<table><thead><tr><th>i</th><th>X_{(n-i+1)} - X_{(i)}</th><th>a_i × diferencia</th></tr></thead><tbody>"
+        "<table><thead><tr><th>k</th><th>Chi-cuadrado</th><th>Valor-p</th></tr></thead>"
+        f"<tbody><tr><td>{bartlett['k']}</td><td>{bartlett['chi2']:.4f}</td><td>{bartlett['p_value']:.4f}</td></tr></tbody></table>"
     )
-    for row in shapiro_table:
+    html.append(
+        "<table><thead><tr><th>Grupo</th><th>n<sub>i</sub></th><th>Varianza</th></tr></thead><tbody>"
+    )
+    for fila in bartlett['tabla']:
         html.append(
-            f"<tr><td>{row['i']}</td><td>{row['diff']:.4f}</td><td>{row['weighted_diff']:.4f}</td></tr>"
+            f"<tr><td>{fila['grupo']}</td><td>{fila['n']}</td><td>{fila['var']:.4f}</td></tr>"
         )
     html.append("</tbody></table>")
 
@@ -146,6 +150,14 @@ def format_text(groups):
             f"{fila['i']}\t{fila['ai']:.4f}\t{fila['diff']:.4f}\t{fila['ai_diff']:.4f}"
         )
 
+    lines.append("\nPrueba de homogeneidad de varianzas (Bartlett)")
+    lines.append(
+        f"k={bartlett['k']}, chi2={bartlett['chi2']:.4f}, p-value={bartlett['p_value']:.4f}"
+    )
+    lines.append("Grupo\tni\tVarianza")
+    for fila in bartlett['tabla']:
+        lines.append(f"{fila['grupo']}\t{fila['n']}\t{fila['var']:.4f}")
+
     def comps(title, res, key):
         lines.append(f"\n{title}")
         for comp in res["comparaciones"].values():
@@ -172,12 +184,7 @@ def main():
         "D": [10, 12, 11, 9],
     }
 
-    try:
-        html = generate_html(groups)
-    except ModuleNotFoundError as exc:
-        print("Se requiere instalar SciPy para generar el informe:", exc)
-        return
-
+    html = generate_html(groups)
     with open("index.html", "w", encoding="utf-8") as f:
         f.write(html)
     print("Archivo index.html generado con los resultados")

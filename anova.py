@@ -338,16 +338,7 @@ def calcular_duncan(observaciones_js, alpha=0.05):
 
 
 def prueba_shapiro(observaciones_js):
-    r"""Aplica la prueba de Shapiro-Wilk a los residuos del modelo.
-
-    La estadística W se define como::
-
-        W = \frac{\left(\sum_i a_i (X_{(n-i+1)} - X_{(i)})\right)^2}{S^2}
-
-    donde los pesos ``a_i`` dependen del tamaño de la muestra y ``X_{(i)}``
-    son los datos ordenados. Aquí aprovechamos la implementación de ``scipy``
-    que calcula estos valores automáticamente.
-    """
+    """Aplica la prueba de Shapiro-Wilk a los residuos del modelo."""
 
     from scipy import stats
 
@@ -392,51 +383,42 @@ def prueba_shapiro(observaciones_js):
     }
 
 
-def tabla_shapiro(observaciones_js):
-    """Devuelve la tabla de diferencias utilizada en la prueba de Shapiro-Wilk.
+def prueba_bartlett(observaciones_js):
+    """Aplica la prueba de Bartlett para homogeneidad de varianzas."""
 
-    Se calculan los residuos, se ordenan de menor a mayor y se obtienen las
-    diferencias apareadas ``X_{(n-i+1)} - X_{(i)}`` junto con los pesos
-    correspondientes ``a_i``. Cada elemento de la lista resultante contiene:
-
-    - ``i``: índice (comenzando en 1).
-    - ``diff``: diferencia pareada.
-    - ``weighted_diff``: producto ``a_i * diff``.
-    """
-
-    from math import sqrt
+    from math import log
     from scipy import stats
-    from scipy.stats._morestats import _calc_uniform_order_statistic_moments
+    import numpy as np
 
     try:
         observaciones = observaciones_js.to_py()
     except AttributeError:
         observaciones = observaciones_js
 
-    medias = {k: sum(v) / len(v) for k, v in observaciones.items()}
-    residuos = [y - medias[g] for g, vals in observaciones.items() for y in vals]
-
-    residuos.sort()
-    n = len(residuos)
-    if n < 2:
-        return []
-
-    # Valores esperados de las estadísticas de orden de una muestra normal
-    mtil, _ = _calc_uniform_order_statistic_moments(n)
-    expected = [stats.norm.ppf(mu) for mu in mtil]
-
-    m = n // 2
-    coeffs_raw = [expected[-(i + 1)] for i in range(m)]
-    norm_factor = sqrt(sum(c * c for c in coeffs_raw))
-    coeffs = [c / norm_factor for c in coeffs_raw]
-
+    # Calcular varianzas por grupo
     tabla = []
-    for idx in range(m):
-        diff = residuos[-(idx + 1)] - residuos[idx]
-        tabla.append({
-            'i': idx + 1,
-            'diff': diff,
-            'weighted_diff': coeffs[idx] * diff,
-        })
+    N = 0
+    suma_componentes = 0.0
+    suma_inversos = 0.0
+    for grupo, valores in observaciones.items():
+        n = len(valores)
+        var = float(np.var(valores, ddof=1))
+        tabla.append({'grupo': grupo, 'n': n, 'var': var})
+        N += n
+        suma_componentes += (n - 1) * var
+        suma_inversos += 1 / (n - 1)
 
-    return tabla
+    k = len(observaciones)
+    pooled_var = suma_componentes / (N - k)
+    calc1 = (N - k) * log(pooled_var)
+    calc2 = sum((row['n'] - 1) * log(row['var']) for row in tabla)
+    C = 1 + (suma_inversos - 1 / (N - k)) / (3 * (k - 1))
+    chi2 = (calc1 - calc2) / C
+    p_value = stats.chi2.sf(chi2, k - 1)
+
+    return {
+        'k': k,
+        'chi2': chi2,
+        'p_value': p_value,
+        'tabla': tabla,
+    }
