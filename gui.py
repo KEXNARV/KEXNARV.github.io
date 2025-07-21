@@ -7,16 +7,12 @@ class App:
     def __init__(self, root):
         self.root = root
         self.root.title("Ingresar datos ANOVA")
-
         self.rows = 4
         self.cols = 4
-
         self.header_vars = []
         self.cell_vars = []
-
         self.table = tk.Frame(root)
         self.table.pack(padx=10, pady=10)
-
         self.draw_table()
         self.control_panel()
 
