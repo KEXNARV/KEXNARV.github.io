@@ -141,7 +141,7 @@ def calcular_lsd(observaciones_js, alpha=0.05):
     """
 
     from itertools import combinations
-    from math import sqrt
+    from math import sqrt, isnan
     from scipy import stats
 
     try:
@@ -282,7 +282,7 @@ def calcular_duncan(observaciones_js, alpha=0.05):
     """
 
     from itertools import combinations
-    from math import sqrt
+    from math import sqrt, isnan
     from scipy import stats
 
     try:
@@ -307,9 +307,16 @@ def calcular_duncan(observaciones_js, alpha=0.05):
             g2 = orden[j]
             diff = abs(medias[g1] - medias[g2])
             r = j - i + 1
-            q_crit = stats.studentized_range.ppf(1 - alpha, r, gl_error)
-            if isnan(q_crit):  # pragma: no cover
+            try:
+                q_crit = stats.studentized_range.ppf(1 - alpha, r, gl_error)
+                if isnan(q_crit):  # pragma: no cover - sanity check
+                    raise ValueError("studentized_range.ppf devolvió NaN")
+            except Exception as exc:  # pragma: no cover - SciPy may fail
                 q_crit = stats.t.ppf(1 - alpha / 2, gl_error) * sqrt(2)
+                if isnan(q_crit):
+                    raise ValueError(
+                        f"No se pudo calcular el valor crítico de Duncan: {exc}"
+                    ) from exc
             se = sqrt(cm_error / 2 * (1 / n_por_tratamiento[g1] + 1 / n_por_tratamiento[g2]))
             dms = q_crit * se
             comparaciones[f"{g1}-{g2}"] = {
