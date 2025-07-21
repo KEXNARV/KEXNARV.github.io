@@ -1,11 +1,11 @@
 # KEXNARV.github.io
 
-Herramientas para realizar un ANOVA y generar un archivo HTML con los resultados.
+Herramientas para realizar un ANOVA en Python.
 
 ## Scripts
 
-- `run_analysis.py`: genera `index.html` con datos de ejemplo.
-- `gui.py`: interfaz gráfica sencilla con Tkinter para ingresar los tratamientos y sus observaciones. Al presionar "Generar resultados" se crea `index.html` con los datos proporcionados.
+- `run_analysis.py`: contiene utilidades para formatear los resultados.
+- `gui.py`: interfaz gráfica en Tkinter que permite ingresar los valores en una cuadrícula y añadir o eliminar filas y columnas. Los resultados se muestran en una ventana emergente.
 
 ## Uso
 
@@ -13,4 +13,4 @@ Herramientas para realizar un ANOVA y generar un archivo HTML con los resultados
 python gui.py
 ```
 
-Después de ingresar los datos, el archivo `index.html` contendrá la tabla con los resultados del ANOVA.
+Al ejecutar la aplicación se abrirá la interfaz gráfica. Tras introducir los datos y pulsar **Mostrar resultados** se abrirá una ventana con el reporte en texto.
