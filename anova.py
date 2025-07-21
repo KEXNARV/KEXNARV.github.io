@@ -119,3 +119,60 @@ def calculos_por_tratamiento(observaciones_js):
         'desviaciones_respecto_media_global': desviaciones_respecto_media_global,
         'suma_cuadrados_total': suma_cuadrados_total,
     }
+
+
+def calcular_lsd(observaciones_js, alpha=0.05):
+    """Realiza comparaciones LSD entre todos los pares de tratamientos.
+
+    Parameters
+    ----------
+    observaciones_js : dict or JsProxy
+        Mapeo de tratamientos a listas de observaciones.
+    alpha : float, optional
+        Nivel de significancia para el cálculo del valor crítico de *t*.
+        Por defecto 0.05.
+
+    Returns
+    -------
+    dict
+        Información de las comparaciones por pares. Para cada par de grupos se
+        indican la diferencia absoluta de medias, el error estándar, el valor
+        crítico de *t*, la LSD calculada y si la diferencia es significativa.
+    """
+
+    from itertools import combinations
+    from math import sqrt
+    from scipy import stats
+
+    try:
+        observaciones = observaciones_js.to_py()
+    except AttributeError:
+        observaciones = observaciones_js
+
+    anova_res = run_anova(observaciones)
+    medias = anova_res['group_means']
+    n_por_tratamiento = {k: len(v) for k, v in observaciones.items()}
+    cm_error = anova_res['CM_E']
+    gl_error = anova_res['GL_E']
+
+    t_crit = stats.t.ppf(1 - alpha / 2, gl_error)
+
+    comparaciones = {}
+    for g1, g2 in combinations(observaciones.keys(), 2):
+        diff = abs(medias[g1] - medias[g2])
+        se = sqrt(cm_error * (1 / n_por_tratamiento[g1] + 1 / n_por_tratamiento[g2]))
+        lsd = t_crit * se
+        comparaciones[f"{g1}-{g2}"] = {
+            'grupo1': g1,
+            'grupo2': g2,
+            'diff': diff,
+            'se': se,
+            't_crit': t_crit,
+            'lsd': lsd,
+            'significant': diff > lsd,
+        }
+
+    return {
+        't_crit': t_crit,
+        'comparaciones': comparaciones,
+    }

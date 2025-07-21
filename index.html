@@ -131,6 +131,18 @@ async function runCalculosPy(groups) {
     return calcs;
 }
 
+async function runLsdPy(groups) {
+    const pyodide = await initPyodide;
+    pyodide.globals.set('lsd_groups', groups);
+    await pyodide.runPythonAsync('lsd_res = calcular_lsd(lsd_groups)');
+    const lsdRes = pyodide.globals
+        .get('lsd_res')
+        .toJs({ dict_converter: Object.fromEntries });
+    pyodide.globals.delete('lsd_res');
+    pyodide.globals.delete('lsd_groups');
+    return lsdRes;
+}
+
 
 document.getElementById('runAnova').addEventListener('click', async function() {
     const rows = document.querySelectorAll('#dataTable tbody tr');
@@ -153,6 +165,7 @@ document.getElementById('runAnova').addEventListener('click', async function() {
 
     const result = await runAnovaPy(groups);
     const calcs = await runCalculosPy(groups);
+    const lsd = await runLsdPy(groups);
     const groupMeans = result.group_means;
 
     let html = '<h2 class="font-semibold mb-2">Promedios</h2>';
@@ -193,6 +206,20 @@ document.getElementById('runAnova').addEventListener('click', async function() {
     html += `<tr><td>Tratamientos</td><td>${result.SC_TRAT.toFixed(4)}</td><td>${result.GL_TRAT}</td><td>${result.CM_TRAT.toFixed(4)}</td><td>${result.F0.toFixed(4)}</td><td>${result.p_value.toFixed(4)}</td></tr>`;
     html += `<tr><td>Error</td><td>${result.SC_E.toFixed(4)}</td><td>${result.GL_E}</td><td>${result.CM_E.toFixed(4)}</td><td></td><td></td></tr>`;
     html += `<tr><td>Total</td><td>${result.SC_T.toFixed(4)}</td><td>${result.GL_T}</td><td></td><td></td><td></td></tr>`;
+    html += '</tbody></table>';
+
+    html += '<h2 class="font-semibold mb-2">Prueba LSD</h2>';
+    html += '<table class="min-w-full text-sm text-center mb-4">';
+    html += '<thead><tr><th>Comparaci&oacute;n</th><th>|Ȳi - Ȳj|</th><th>SE</th><th>t cr&iacute;tico</th><th>LSD</th><th>Significativo</th></tr></thead><tbody>';
+    Object.keys(lsd.comparaciones).forEach(key => {
+        const c = lsd.comparaciones[key];
+        html += `<tr><td>${c.grupo1} - ${c.grupo2}</td>` +
+            `<td>${c.diff.toFixed(4)}</td>` +
+            `<td>${c.se.toFixed(4)}</td>` +
+            `<td>${c.t_crit.toFixed(4)}</td>` +
+            `<td>${c.lsd.toFixed(4)}</td>` +
+            `<td>${c.significant ? 'Sí' : 'No'}</td></tr>`;
+    });
     html += '</tbody></table>';
 
     document.getElementById('anovaResult').innerHTML = html;
