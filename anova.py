@@ -352,6 +352,7 @@ def prueba_shapiro(observaciones_js):
 
     stat, p_value = stats.shapiro(residuos)
     return {
+        'n': len(residuos),
         'w': stat,
         'p_value': p_value,
     }
