@@ -65,23 +65,22 @@ def generate_html(groups):
     )
     html.append("</tbody></table>")
 
-    def comparisons_table(title, res, label):
+    def comparisons_table(title, res, label, diff_key):
         html.append(f"<h2>{title}</h2>")
         html.append(
             f"<table><thead><tr><th>Comparación</th><th>|Ȳi - Ȳj|</th><th>SE</th><th>{label}</th><th>Diferencia</th><th>Significativo</th></tr></thead><tbody>"
         )
-        for key, comp in res['comparaciones'].items():
-            val_label = 'lsd' if label == 't crítico' else ('hsd' if label == 'q crítico' else 'dms')
-            diff_val = comp.get(val_label, 0)
+        for comp in res['comparaciones'].values():
+            diff_val = comp.get(diff_key, 0)
             crit = comp.get('t_crit') or comp.get('q_crit')
             html.append(
                 f"<tr><td>{comp['grupo1']} - {comp['grupo2']}</td><td>{comp['diff']:.4f}</td><td>{comp['se']:.4f}</td><td>{crit:.4f}</td><td>{diff_val:.4f}</td><td>{'Sí' if comp['significant'] else 'No'}</td></tr>"
             )
         html.append("</tbody></table>")
 
-    comparisons_table('Prueba LSD', lsd, 't crítico')
-    comparisons_table('Prueba de Tukey', tukey, 'q crítico')
-    comparisons_table('Prueba de Duncan', duncan, 'q crítico')
+    comparisons_table('Prueba LSD', lsd, 't crítico', 'lsd')
+    comparisons_table('Prueba de Tukey', tukey, 'q crítico', 'hsd')
+    comparisons_table('Prueba de Duncan', duncan, 'q crítico', 'dms')
 
     html.append("</body></html>")
     return "\n".join(html)
