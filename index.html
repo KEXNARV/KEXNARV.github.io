@@ -51,9 +51,11 @@
                 </tr>
             </tbody>
         </table>
-        <div class="flex space-x-2 mb-4">
+        <div class="flex space-x-2 mb-4 justify-start">
             <button id="addRow" class="bg-blue-500 hover:bg-blue-600 text-white py-1 px-3 rounded">Agregar fila</button>
+            <button id="removeRow" class="bg-red-500 hover:bg-red-600 text-white py-1 px-3 rounded">Eliminar fila</button>
             <button id="addColumn" class="bg-blue-500 hover:bg-blue-600 text-white py-1 px-3 rounded">Agregar columna</button>
+            <button id="removeColumn" class="bg-red-500 hover:bg-red-600 text-white py-1 px-3 rounded">Eliminar columna</button>
             <button id="runAnova" class="bg-green-500 hover:bg-green-600 text-white py-1 px-3 rounded">Generar ANOVA</button>
         </div>
         <div id="anovaResult" class="bg-gray-100 p-3 rounded overflow-auto"></div>
@@ -76,6 +78,13 @@ function addRow() {
     tbody.appendChild(row);
 }
 
+function removeRow() {
+    const tbody = document.querySelector('#dataTable tbody');
+    if (tbody.lastElementChild) {
+        tbody.removeChild(tbody.lastElementChild);
+    }
+}
+
 function addColumn() {
     const table = document.getElementById('dataTable');
     const theadRow = table.querySelector('thead tr');
@@ -94,8 +103,21 @@ function addColumn() {
     });
 }
 
+function removeColumn() {
+    const table = document.getElementById('dataTable');
+    const currentCount = getValueColumnCount();
+    if (currentCount === 1) return;
+    const colIndex = table.querySelector('thead tr').cells.length - 1;
+    table.querySelector('thead tr').deleteCell(colIndex);
+    table.querySelectorAll('tbody tr').forEach(row => {
+        row.deleteCell(colIndex);
+    });
+}
+
 document.getElementById('addRow').addEventListener('click', addRow);
+document.getElementById('removeRow').addEventListener('click', removeRow);
 document.getElementById('addColumn').addEventListener('click', addColumn);
+document.getElementById('removeColumn').addEventListener('click', removeColumn);
 
 const pyodideReady = loadPyodide({ indexURL: 'https://cdn.jsdelivr.net/pyodide/v0.24.1/full/' });
 const initPyodide = pyodideReady.then(async (pyodide) => {
