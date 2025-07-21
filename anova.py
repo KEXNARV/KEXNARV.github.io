@@ -9,12 +9,13 @@ def run_anova(groups_js):
     SC_T = sum(y*y for g in group_names for y in groups[g]) - (Y_total**2) / N
     SC_TRAT = sum((sum(groups[g])**2)/len(groups[g]) for g in group_names) - (Y_total**2)/N
     SC_E = SC_T - SC_TRAT
-    GL_TRAT = k - 1
-    GL_E = N - k
+    cm_results = calcular_cuadrados_medios(SC_TRAT, SC_E, k, N)
+    GL_TRAT = cm_results['gl_trat']
+    GL_E = cm_results['gl_error']
     GL_T = N - 1
-    CM_TRAT = SC_TRAT / GL_TRAT
-    CM_E = SC_E / GL_E
-    F0 = CM_TRAT / CM_E
+    CM_TRAT = cm_results['cm_trat']
+    CM_E = cm_results['cm_error']
+    F0 = cm_results['f0']
     p_value = stats.f.sf(F0, GL_TRAT, GL_E)
     group_means = {g: sum(groups[g])/len(groups[g]) for g in group_names}
     return {
@@ -29,6 +30,23 @@ def run_anova(groups_js):
         'CM_E': CM_E,
         'F0': F0,
         'p_value': p_value,
+    }
+
+
+def calcular_cuadrados_medios(sc_trat, sc_error, k, N):
+    """Calcula los cuadrados medios y el estadístico F para ANOVA."""
+
+    gl_trat = k - 1
+    gl_error = N - k
+    cm_trat = sc_trat / gl_trat
+    cm_error = sc_error / gl_error
+    f0 = cm_trat / cm_error
+    return {
+        'gl_trat': gl_trat,
+        'gl_error': gl_error,
+        'cm_trat': cm_trat,
+        'cm_error': cm_error,
+        'f0': f0,
     }
 
 
