@@ -10,7 +10,6 @@ from anova import (
 
 def generate_html(groups):
     anova_res = run_anova(groups)
-    calcs = calculos_por_tratamiento(groups)
     lsd = calcular_lsd(groups)
     tukey = calcular_tukey(groups)
     duncan = calcular_duncan(groups)
@@ -93,6 +92,47 @@ def generate_html(groups):
 
     html.append("</body></html>")
     return "\n".join(html)
+
+
+def format_text(groups):
+    """Return a plain text report for the ANOVA and post-hoc tests."""
+    anova_res = run_anova(groups)
+    lsd = calcular_lsd(groups)
+    tukey = calcular_tukey(groups)
+    duncan = calcular_duncan(groups)
+    shapiro = prueba_shapiro(groups)
+
+    lines = ["MEDIAS POR GRUPO"]
+    for g, m in anova_res["group_means"].items():
+        lines.append(f"  {g}: {m:.4f}")
+
+    lines.append("\nTABLA ANOVA (FV, SC, GL, CM, F0, Valor-p)")
+    lines.append(
+        f"Tratamientos: {anova_res['SC_TRAT']:.4f}, {anova_res['GL_TRAT']}, {anova_res['CM_TRAT']:.4f}, {anova_res['F0']:.4f}, {anova_res['p_value']:.4f}"
+    )
+    lines.append(
+        f"Error: {anova_res['SC_E']:.4f}, {anova_res['GL_E']}, {anova_res['CM_E']:.4f}"
+    )
+    lines.append(f"Total: {anova_res['SC_T']:.4f}, {anova_res['GL_T']}")
+
+    lines.append("\nPrueba de normalidad (Shapiro-Wilk)")
+    lines.append(f"W={shapiro['w']:.4f}, p-value={shapiro['p_value']:.4f}")
+
+    def comps(title, res, key):
+        lines.append(f"\n{title}")
+        for comp in res["comparaciones"].values():
+            crit = comp.get("t_crit") or comp.get("q_crit")
+            val = comp.get(key)
+            sig = "Sí" if comp["significant"] else "No"
+            lines.append(
+                f"  {comp['grupo1']} - {comp['grupo2']}: diff={comp['diff']:.4f}, se={comp['se']:.4f}, crit={crit:.4f}, {key}={val:.4f}, sig={sig}"
+            )
+
+    comps("Prueba LSD", lsd, "lsd")
+    comps("Prueba de Tukey", tukey, "hsd")
+    comps("Prueba de Duncan", duncan, "dms")
+
+    return "\n".join(lines)
 
 
 def main():
