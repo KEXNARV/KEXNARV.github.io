@@ -4,6 +4,7 @@ from anova import (
     calcular_lsd,
     calcular_tukey,
     calcular_duncan,
+    prueba_shapiro,
 )
 
 
@@ -13,6 +14,7 @@ def generate_html(groups):
     lsd = calcular_lsd(groups)
     tukey = calcular_tukey(groups)
     duncan = calcular_duncan(groups)
+    shapiro = prueba_shapiro(groups)
 
     html = [
         "<!DOCTYPE html>",
@@ -64,6 +66,12 @@ def generate_html(groups):
         f"<tr><td>Total</td><td>{anova_res['SC_T']:.4f}</td><td>{anova_res['GL_T']}</td><td></td><td></td><td></td></tr>"
     )
     html.append("</tbody></table>")
+
+    html.append("<h2>Prueba de normalidad (Shapiro-Wilk)</h2>")
+    html.append(
+        "<table><thead><tr><th>W</th><th>Valor-p</th></tr></thead>"
+        f"<tbody><tr><td>{shapiro['w']:.4f}</td><td>{shapiro['p_value']:.4f}</td></tr></tbody></table>"
+    )
 
     def comparisons_table(title, res, label):
         html.append(f"<h2>{title}</h2>")
