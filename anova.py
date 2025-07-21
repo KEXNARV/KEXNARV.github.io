@@ -355,3 +355,53 @@ def prueba_shapiro(observaciones_js):
         'w': stat,
         'p_value': p_value,
     }
+
+
+def tabla_shapiro(observaciones_js):
+    """Devuelve la tabla de diferencias utilizada en la prueba de Shapiro-Wilk.
+
+    Se calculan los residuos, se ordenan de menor a mayor y se obtienen las
+    diferencias apareadas ``X_{(n-i+1)} - X_{(i)}`` junto con los pesos
+    correspondientes ``a_i``. Cada elemento de la lista resultante contiene:
+
+    - ``i``: índice (comenzando en 1).
+    - ``diff``: diferencia pareada.
+    - ``weighted_diff``: producto ``a_i * diff``.
+    """
+
+    from math import sqrt
+    from scipy import stats
+    from scipy.stats._morestats import _calc_uniform_order_statistic_moments
+
+    try:
+        observaciones = observaciones_js.to_py()
+    except AttributeError:
+        observaciones = observaciones_js
+
+    medias = {k: sum(v) / len(v) for k, v in observaciones.items()}
+    residuos = [y - medias[g] for g, vals in observaciones.items() for y in vals]
+
+    residuos.sort()
+    n = len(residuos)
+    if n < 2:
+        return []
+
+    # Valores esperados de las estadísticas de orden de una muestra normal
+    mtil, _ = _calc_uniform_order_statistic_moments(n)
+    expected = [stats.norm.ppf(mu) for mu in mtil]
+
+    m = n // 2
+    coeffs_raw = [expected[-(i + 1)] for i in range(m)]
+    norm_factor = sqrt(sum(c * c for c in coeffs_raw))
+    coeffs = [c / norm_factor for c in coeffs_raw]
+
+    tabla = []
+    for idx in range(m):
+        diff = residuos[-(idx + 1)] - residuos[idx]
+        tabla.append({
+            'i': idx + 1,
+            'diff': diff,
+            'weighted_diff': coeffs[idx] * diff,
+        })
+
+    return tabla
