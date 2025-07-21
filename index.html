@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ANOVA Table</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 text-gray-800 p-8">
+    <div class="max-w-3xl mx-auto bg-white shadow rounded p-6">
+        <h1 class="text-2xl font-bold mb-4 text-center">Tabla de Datos</h1>
+        <table id="dataTable" class="min-w-full mb-4">
+            <thead>
+                <tr>
+                    <th class="border px-4 py-2">Grupo</th>
+                    <th class="border px-4 py-2">Valor</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td class="border px-2 py-1"><input class="group w-full p-1" type="text" /></td>
+                    <td class="border px-2 py-1"><input class="value w-full p-1" type="number" step="any" /></td>
+                </tr>
+            </tbody>
+        </table>
+        <div class="flex space-x-2 mb-4">
+            <button id="addRow" class="bg-blue-500 hover:bg-blue-600 text-white py-1 px-3 rounded">Agregar fila</button>
+            <button id="runAnova" class="bg-green-500 hover:bg-green-600 text-white py-1 px-3 rounded">Generar ANOVA</button>
+        </div>
+        <pre id="anovaResult" class="bg-gray-100 p-3 rounded overflow-auto"></pre>
+    </div>
+
+<script>
+function addRow() {
+    const tbody = document.querySelector('#dataTable tbody');
+    const row = document.createElement('tr');
+    row.innerHTML = `<td class="border px-2 py-1"><input class="group w-full p-1" type="text" /></td>` +
+                    `<td class="border px-2 py-1"><input class="value w-full p-1" type="number" step="any" /></td>`;
+    tbody.appendChild(row);
+}
+
+document.getElementById('addRow').addEventListener('click', addRow);
+
+document.getElementById('runAnova').addEventListener('click', function() {
+    const rows = document.querySelectorAll('#dataTable tbody tr');
+    const groups = {};
+    rows.forEach(row => {
+        const g = row.querySelector('.group').value.trim();
+        const v = parseFloat(row.querySelector('.value').value);
+        if (g && !isNaN(v)) {
+            groups[g] = groups[g] || [];
+            groups[g].push(v);
+        }
+    });
+    const groupNames = Object.keys(groups);
+    if (groupNames.length < 2) {
+        document.getElementById('anovaResult').textContent = 'Se requieren al menos dos grupos con valores.';
+        return;
+    }
+    const allValues = [];
+    groupNames.forEach(g => allValues.push(...groups[g]));
+    const N = allValues.length;
+    const grandMean = allValues.reduce((a,b) => a + b, 0) / N;
+
+    let ssBetween = 0;
+    let ssWithin = 0;
+    groupNames.forEach(g => {
+        const values = groups[g];
+        const n = values.length;
+        const mean = values.reduce((a,b) => a + b, 0) / n;
+        ssBetween += n * Math.pow(mean - grandMean, 2);
+        values.forEach(v => {
+            ssWithin += Math.pow(v - mean, 2);
+        });
+    });
+
+    const dfBetween = groupNames.length - 1;
+    const dfWithin = N - groupNames.length;
+    const msBetween = ssBetween / dfBetween;
+    const msWithin = ssWithin / dfWithin;
+    const F = msBetween / msWithin;
+
+    const result = {
+        'SS Entre grupos': ssBetween.toFixed(4),
+        'SS Dentro de grupos': ssWithin.toFixed(4),
+        'GL Entre grupos': dfBetween,
+        'GL Dentro de grupos': dfWithin,
+        'MS Entre grupos': msBetween.toFixed(4),
+        'MS Dentro de grupos': msWithin.toFixed(4),
+        'F': F.toFixed(4)
+    };
+    let text = '';
+    for (const [k, v] of Object.entries(result)) {
+        text += `${k}: ${v}\n`;
+    }
+    document.getElementById('anovaResult').textContent = text;
+});
+</script>
+</body>
+</html>
