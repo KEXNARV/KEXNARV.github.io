@@ -179,6 +179,18 @@ async function runTukeyPy(groups) {
     return tukeyRes;
 }
 
+async function runDuncanPy(groups) {
+    const pyodide = await initPyodide;
+    pyodide.globals.set('duncan_groups', groups);
+    await pyodide.runPythonAsync('duncan_res = calcular_duncan(duncan_groups)');
+    const duncanRes = pyodide.globals
+        .get('duncan_res')
+        .toJs({ dict_converter: Object.fromEntries });
+    pyodide.globals.delete('duncan_res');
+    pyodide.globals.delete('duncan_groups');
+    return duncanRes;
+}
+
 
 document.getElementById('runAnova').addEventListener('click', async function() {
     const rows = document.querySelectorAll('#dataTable tbody tr');
@@ -203,6 +215,7 @@ document.getElementById('runAnova').addEventListener('click', async function() {
     const calcs = await runCalculosPy(groups);
     const lsd = await runLsdPy(groups);
     const tukey = await runTukeyPy(groups);
+    const duncan = await runDuncanPy(groups);
     const groupMeans = result.group_means;
 
     let html = '<h2 class="font-semibold mb-2">Promedios</h2>';
@@ -269,6 +282,20 @@ document.getElementById('runAnova').addEventListener('click', async function() {
             `<td>${c.se.toFixed(4)}</td>` +
             `<td>${c.q_crit.toFixed(4)}</td>` +
             `<td>${c.hsd.toFixed(4)}</td>` +
+            `<td>${c.significant ? 'Significativo' : 'No significativo'}</td></tr>`;
+    });
+    html += '</tbody></table>';
+
+    html += '<h2 class="font-semibold mb-2">Prueba de Duncan</h2>';
+    html += '<table class="min-w-full text-sm text-center mb-4">';
+    html += '<thead><tr><th>Comparaci&oacute;n</th><th>|Ȳi - Ȳj|</th><th>SE</th><th>q cr&iacute;tico</th><th>DMS</th><th>Significativo</th></tr></thead><tbody>';
+    Object.keys(duncan.comparaciones).forEach(key => {
+        const c = duncan.comparaciones[key];
+        html += `<tr><td>${c.grupo1} - ${c.grupo2}</td>` +
+            `<td>${c.diff.toFixed(4)}</td>` +
+            `<td>${c.se.toFixed(4)}</td>` +
+            `<td>${c.q_crit.toFixed(4)}</td>` +
+            `<td>${c.dms.toFixed(4)}</td>` +
             `<td>${c.significant ? 'Significativo' : 'No significativo'}</td></tr>`;
     });
     html += '</tbody></table>';
