@@ -169,8 +169,9 @@ def calcular_lsd(observaciones_js, alpha=0.05):
             'se': se,
             't_crit': t_crit,
             'lsd': lsd,
-            # Diferencia significativa cuando |Ȳi - Ȳj| >= LSD
-            'significant': diff >= lsd,
+            # Para evitar que pequeños errores de redondeo marquen una
+            # diferencia como significativa, se añade una tolerancia.
+            'significant': diff + 1e-12 >= lsd,
         }
 
     return {
