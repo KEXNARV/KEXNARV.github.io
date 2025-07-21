@@ -87,6 +87,44 @@ def generate_html(groups):
     return "\n".join(html)
 
 
+def format_text(groups):
+    """Return a plain text report for the ANOVA and post-hoc tests."""
+    anova_res = run_anova(groups)
+    calcs = calculos_por_tratamiento(groups)
+    lsd = calcular_lsd(groups)
+    tukey = calcular_tukey(groups)
+    duncan = calcular_duncan(groups)
+
+    lines = ["MEDIAS POR GRUPO"]
+    for g, m in anova_res["group_means"].items():
+        lines.append(f"  {g}: {m:.4f}")
+
+    lines.append("\nTABLA ANOVA (FV, SC, GL, CM, F0, Valor-p)")
+    lines.append(
+        f"Tratamientos: {anova_res['SC_TRAT']:.4f}, {anova_res['GL_TRAT']}, {anova_res['CM_TRAT']:.4f}, {anova_res['F0']:.4f}, {anova_res['p_value']:.4f}"
+    )
+    lines.append(
+        f"Error: {anova_res['SC_E']:.4f}, {anova_res['GL_E']}, {anova_res['CM_E']:.4f}"
+    )
+    lines.append(f"Total: {anova_res['SC_T']:.4f}, {anova_res['GL_T']}")
+
+    def comps(title, res, key):
+        lines.append(f"\n{title}")
+        for comp in res["comparaciones"].values():
+            crit = comp.get("t_crit") or comp.get("q_crit")
+            val = comp.get(key)
+            sig = "Sí" if comp["significant"] else "No"
+            lines.append(
+                f"  {comp['grupo1']} - {comp['grupo2']}: diff={comp['diff']:.4f}, se={comp['se']:.4f}, crit={crit:.4f}, {key}={val:.4f}, sig={sig}"
+            )
+
+    comps("Prueba LSD", lsd, "lsd")
+    comps("Prueba de Tukey", tukey, "hsd")
+    comps("Prueba de Duncan", duncan, "dms")
+
+    return "\n".join(lines)
+
+
 def main():
     # Datos de ejemplo equivalentes a los que se encontraban en la página HTML
     groups = {
@@ -96,10 +134,8 @@ def main():
         "D": [10, 12, 11, 9],
     }
 
-    html = generate_html(groups)
-    with open("index.html", "w", encoding="utf-8") as f:
-        f.write(html)
-    print("Archivo index.html generado con los resultados")
+    report = format_text(groups)
+    print(report)
 
 
 if __name__ == "__main__":
