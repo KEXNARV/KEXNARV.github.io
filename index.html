@@ -109,10 +109,26 @@ async function runAnovaPy(groups) {
     const pyodide = await initPyodide;
     pyodide.globals.set('groups', groups);
     await pyodide.runPythonAsync('result = run_anova(groups)');
-    const result = pyodide.globals.get('result').toJs();
+    const result = pyodide.globals
+        .get('result')
+        .toJs({ dict_converter: Object.fromEntries });
     pyodide.globals.delete('result');
     pyodide.globals.delete('groups');
     return result;
+}
+
+async function runCalculosPy(groups) {
+    const pyodide = await initPyodide;
+    pyodide.globals.set('observaciones', groups);
+    await pyodide.runPythonAsync(
+        'calcs = calculos_por_tratamiento(observaciones)'
+    );
+    const calcs = pyodide.globals
+        .get('calcs')
+        .toJs({ dict_converter: Object.fromEntries });
+    pyodide.globals.delete('calcs');
+    pyodide.globals.delete('observaciones');
+    return calcs;
 }
 
 document.getElementById('runAnova').addEventListener('click', async function() {
@@ -135,6 +151,7 @@ document.getElementById('runAnova').addEventListener('click', async function() {
     }
 
     const result = await runAnovaPy(groups);
+    const calcs = await runCalculosPy(groups);
     const groupMeans = result.group_means;
 
     let html = '<h2 class="font-semibold mb-2">Promedios</h2>';
@@ -144,6 +161,22 @@ document.getElementById('runAnova').addEventListener('click', async function() {
         html += `<tr><td>${g}</td><td>${groupMeans[g].toFixed(4)}</td></tr>`;
     });
     html += '</tbody></table>';
+
+    html += '<h2 class="font-semibold mb-2">Estadísticas por tratamiento</h2>';
+    html += '<table class="mb-4 min-w-full text-sm text-center"><thead><tr>';
+    html += '<th>Tratamiento</th><th>Yi·</th><th>ni</th><th>Ȳi</th><th>τ̂i</th></tr></thead><tbody>';
+    Object.keys(calcs.totales_por_tratamiento).forEach(g => {
+        html += `<tr><td>${g}</td><td>${calcs.totales_por_tratamiento[g]}</td>` +
+            `<td>${calcs.n_por_tratamiento[g]}</td>` +
+            `<td>${calcs.medias_por_tratamiento[g].toFixed(4)}</td>` +
+            `<td>${calcs.desviaciones_respecto_media_global[g].toFixed(4)}</td></tr>`;
+    });
+    html += '</tbody></table>';
+
+    html += `<p><strong>Y..</strong>: ${calcs.total_general}</p>`;
+    html += `<p><strong>N</strong>: ${calcs.N}</p>`;
+    html += `<p><strong>Ȳ..</strong>: ${calcs.media_global.toFixed(4)}</p>`;
+    html += `<p><strong>Suma de cuadrados total</strong>: ${calcs.suma_cuadrados_total.toFixed(4)}</p>`;
 
     html += '<table class="min-w-full text-sm text-center">';
     html += '<thead><tr><th>FV</th><th>SC</th><th>GL</th><th>CM</th><th>F0</th><th>Valor-p</th></tr></thead><tbody>';
