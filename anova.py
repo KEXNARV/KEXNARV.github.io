@@ -338,7 +338,16 @@ def calcular_duncan(observaciones_js, alpha=0.05):
 
 
 def prueba_shapiro(observaciones_js):
-    """Aplica la prueba de Shapiro-Wilk a los residuos del modelo."""
+    r"""Aplica la prueba de Shapiro-Wilk a los residuos del modelo.
+
+    La estadística W se define como::
+
+        W = \frac{\left(\sum_i a_i (X_{(n-i+1)} - X_{(i)})\right)^2}{S^2}
+
+    donde los pesos ``a_i`` dependen del tamaño de la muestra y ``X_{(i)}``
+    son los datos ordenados. Aquí aprovechamos la implementación de ``scipy``
+    que calcula estos valores automáticamente.
+    """
 
     from scipy import stats
 

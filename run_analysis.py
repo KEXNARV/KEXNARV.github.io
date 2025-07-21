@@ -10,6 +10,7 @@ from anova import (
 
 def generate_html(groups):
     anova_res = run_anova(groups)
+    calcs = calculos_por_tratamiento(groups)
     lsd = calcular_lsd(groups)
     tukey = calcular_tukey(groups)
     duncan = calcular_duncan(groups)
