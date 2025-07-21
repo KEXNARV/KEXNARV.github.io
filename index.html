@@ -260,10 +260,11 @@ document.getElementById('runAnova').addEventListener('click', async function() {
 
     html += '<h2 class="font-semibold mb-2">Prueba LSD</h2>';
     html += '<table class="min-w-full text-sm text-center mb-4">';
-    html += '<thead><tr><th>Comparaci&oacute;n</th><th>|Ȳi - Ȳj|</th><th>SE</th><th>t cr&iacute;tico</th><th>LSD</th><th>Significativo</th></tr></thead><tbody>';
+    html += '<thead><tr><th>Comparaci&oacute;n</th><th>Ȳi - Ȳj</th><th>|Ȳi - Ȳj|</th><th>SE</th><th>t cr&iacute;tico</th><th>LSD</th><th>Significativo</th></tr></thead><tbody>';
     Object.keys(lsd.comparaciones).forEach(key => {
         const c = lsd.comparaciones[key];
         html += `<tr><td>${c.grupo1} - ${c.grupo2}</td>` +
+            `<td>${c.diff_muestral.toFixed(4)}</td>` +
             `<td>${c.diff.toFixed(4)}</td>` +
             `<td>${c.se.toFixed(4)}</td>` +
             `<td>${c.t_crit.toFixed(4)}</td>` +
@@ -274,10 +275,11 @@ document.getElementById('runAnova').addEventListener('click', async function() {
 
     html += '<h2 class="font-semibold mb-2">Prueba de Tukey</h2>';
     html += '<table class="min-w-full text-sm text-center mb-4">';
-    html += '<thead><tr><th>Comparaci&oacute;n</th><th>|Ȳi - Ȳj|</th><th>SE</th><th>q cr&iacute;tico</th><th>HSD</th><th>Significativo</th></tr></thead><tbody>';
+    html += '<thead><tr><th>Comparaci&oacute;n</th><th>Ȳi - Ȳj</th><th>|Ȳi - Ȳj|</th><th>SE</th><th>q cr&iacute;tico</th><th>HSD</th><th>Significativo</th></tr></thead><tbody>';
     Object.keys(tukey.comparaciones).forEach(key => {
         const c = tukey.comparaciones[key];
         html += `<tr><td>${c.grupo1} - ${c.grupo2}</td>` +
+            `<td>${c.diff_muestral.toFixed(4)}</td>` +
             `<td>${c.diff.toFixed(4)}</td>` +
             `<td>${c.se.toFixed(4)}</td>` +
             `<td>${c.q_crit.toFixed(4)}</td>` +
@@ -288,10 +290,11 @@ document.getElementById('runAnova').addEventListener('click', async function() {
 
     html += '<h2 class="font-semibold mb-2">Prueba de Duncan</h2>';
     html += '<table class="min-w-full text-sm text-center mb-4">';
-    html += '<thead><tr><th>Comparaci&oacute;n</th><th>|Ȳi - Ȳj|</th><th>SE</th><th>q cr&iacute;tico</th><th>DMS</th><th>Significativo</th></tr></thead><tbody>';
+    html += '<thead><tr><th>Comparaci&oacute;n</th><th>Ȳi - Ȳj</th><th>|Ȳi - Ȳj|</th><th>SE</th><th>q cr&iacute;tico</th><th>DMS</th><th>Significativo</th></tr></thead><tbody>';
     Object.keys(duncan.comparaciones).forEach(key => {
         const c = duncan.comparaciones[key];
         html += `<tr><td>${c.grupo1} - ${c.grupo2}</td>` +
+            `<td>${c.diff_muestral.toFixed(4)}</td>` +
             `<td>${c.diff.toFixed(4)}</td>` +
             `<td>${c.se.toFixed(4)}</td>` +
             `<td>${c.q_crit.toFixed(4)}</td>` +
