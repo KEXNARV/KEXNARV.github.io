@@ -9,12 +9,13 @@ def run_anova(groups_js):
     SC_T = sum(y*y for g in group_names for y in groups[g]) - (Y_total**2) / N
     SC_TRAT = sum((sum(groups[g])**2)/len(groups[g]) for g in group_names) - (Y_total**2)/N
     SC_E = SC_T - SC_TRAT
-    GL_TRAT = k - 1
-    GL_E = N - k
+    cm_results = calcular_cuadrados_medios(SC_TRAT, SC_E, k, N)
+    GL_TRAT = cm_results['gl_trat']
+    GL_E = cm_results['gl_error']
     GL_T = N - 1
-    CM_TRAT = SC_TRAT / GL_TRAT
-    CM_E = SC_E / GL_E
-    F0 = CM_TRAT / CM_E
+    CM_TRAT = cm_results['cm_trat']
+    CM_E = cm_results['cm_error']
+    F0 = cm_results['f0']
     p_value = stats.f.sf(F0, GL_TRAT, GL_E)
     group_means = {g: sum(groups[g])/len(groups[g]) for g in group_names}
     return {
@@ -29,4 +30,73 @@ def run_anova(groups_js):
         'CM_E': CM_E,
         'F0': F0,
         'p_value': p_value,
+    }
+
+
+def calcular_cuadrados_medios(sc_trat, sc_error, k, N):
+    """Calcula los cuadrados medios y el estadístico F para ANOVA."""
+
+    gl_trat = k - 1
+    gl_error = N - k
+    cm_trat = sc_trat / gl_trat
+    cm_error = sc_error / gl_error
+    f0 = cm_trat / cm_error
+    return {
+        'gl_trat': gl_trat,
+        'gl_error': gl_error,
+        'cm_trat': cm_trat,
+        'cm_error': cm_error,
+        'f0': f0,
+    }
+
+
+def calculos_por_tratamiento(observaciones):
+    """Calcula estadísticas básicas a partir de las observaciones."""
+
+    # Datos de observaciones por tratamiento (método de ensamble)
+
+    # Paso 1: Calcular el total por tratamiento (Yi·)
+    totales_por_tratamiento = {
+        k: sum(v) for k, v in observaciones.items()
+    }
+
+    # Paso 2: Calcular el número de datos por tratamiento (ni)
+    n_por_tratamiento = {
+        k: len(v) for k, v in observaciones.items()
+    }
+
+    # Paso 3: Calcular la media muestral por tratamiento (Ȳi)
+    medias_por_tratamiento = {
+        k: sum(v) / len(v) for k, v in observaciones.items()
+    }
+
+    # Paso 4: Calcular la suma total de los datos (Y..)
+    total_general = sum(sum(v) for v in observaciones.values())
+
+    # Paso 5: Calcular el número total de observaciones (N)
+    N = sum(len(v) for v in observaciones.values())
+
+    # Paso 6: Calcular la media global (Ȳ..)
+    media_global = total_general / N
+
+    # Paso 7: Calcular las desviaciones respecto a la media global (τ̂i)
+    desviaciones_respecto_media_global = {
+        k: medias_por_tratamiento[k] - media_global
+        for k in observaciones
+    }
+
+    # Paso 8: Calcular la suma de los cuadrados de todos los datos
+    suma_cuadrados_total = sum(
+        y ** 2 for grupo in observaciones.values() for y in grupo
+    )
+
+    return {
+        'totales_por_tratamiento': totales_por_tratamiento,
+        'n_por_tratamiento': n_por_tratamiento,
+        'medias_por_tratamiento': medias_por_tratamiento,
+        'total_general': total_general,
+        'N': N,
+        'media_global': media_global,
+        'desviaciones_respecto_media_global': desviaciones_respecto_media_global,
+        'suma_cuadrados_total': suma_cuadrados_total,
     }
