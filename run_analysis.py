@@ -72,6 +72,14 @@ def generate_html(groups):
         "<table><thead><tr><th>N</th><th>W</th><th>Valor-p</th></tr></thead>"
         f"<tbody><tr><td>{shapiro['n']}</td><td>{shapiro['w']:.4f}</td><td>{shapiro['p_value']:.4f}</td></tr></tbody></table>"
     )
+    html.append(
+        "<table><thead><tr><th>i</th><th>a<sub>i</sub></th><th>X(n-i+1)-X(i)</th><th>a<sub>i</sub>(X(n-i+1)-X(i))</th></tr></thead><tbody>"
+    )
+    for fila in shapiro['tabla']:
+        html.append(
+            f"<tr><td>{fila['i']}</td><td>{fila['ai']:.4f}</td><td>{fila['diff']:.4f}</td><td>{fila['ai_diff']:.4f}</td></tr>"
+        )
+    html.append("</tbody></table>")
 
     def comparisons_table(title, res, label):
         html.append(f"<h2>{title}</h2>")
@@ -120,6 +128,11 @@ def format_text(groups):
     lines.append(
         f"n={shapiro['n']}, W={shapiro['w']:.4f}, p-value={shapiro['p_value']:.4f}"
     )
+    lines.append("i\tai\tX(n-i+1)-X(i)\tai*(X(n-i+1)-X(i))")
+    for fila in shapiro['tabla']:
+        lines.append(
+            f"{fila['i']}\t{fila['ai']:.4f}\t{fila['diff']:.4f}\t{fila['ai_diff']:.4f}"
+        )
 
     def comps(title, res, key):
         lines.append(f"\n{title}")
