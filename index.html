@@ -163,17 +163,6 @@ document.getElementById('runAnova').addEventListener('click', async function() {
     });
     html += '</tbody></table>';
 
-    html += '<h2 class="font-semibold mb-2">Estadísticas por tratamiento</h2>';
-    html += '<table class="mb-4 min-w-full text-sm text-center"><thead><tr>';
-    html += '<th>Tratamiento</th><th>Yi·</th><th>ni</th><th>Ȳi</th><th>τ̂i</th></tr></thead><tbody>';
-    Object.keys(calcs.totales_por_tratamiento).forEach(g => {
-        html += `<tr><td>${g}</td><td>${calcs.totales_por_tratamiento[g]}</td>` +
-            `<td>${calcs.n_por_tratamiento[g]}</td>` +
-            `<td>${calcs.medias_por_tratamiento[g].toFixed(4)}</td>` +
-            `<td>${calcs.desviaciones_respecto_media_global[g].toFixed(4)}</td></tr>`;
-    });
-    html += '</tbody></table>';
-
     html += '<h2 class="font-semibold mb-2">Estadísticas globales</h2>';
     html += '<table class="mb-4 min-w-full text-sm text-center"><thead><tr>';
     html += '<th>Y..</th><th>N</th><th>Ȳ..</th><th>Suma de cuadrados total</th>';
