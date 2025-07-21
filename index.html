@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ANOVA Table</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jstat/1.9.4/jstat.min.js"></script>
 </head>
 <body class="bg-gray-100 text-gray-800 p-8">
     <div class="max-w-3xl mx-auto bg-white shadow rounded p-6">
@@ -28,7 +29,7 @@
             <button id="addColumn" class="bg-blue-500 hover:bg-blue-600 text-white py-1 px-3 rounded">Agregar columna</button>
             <button id="runAnova" class="bg-green-500 hover:bg-green-600 text-white py-1 px-3 rounded">Generar ANOVA</button>
         </div>
-        <pre id="anovaResult" class="bg-gray-100 p-3 rounded overflow-auto"></pre>
+        <div id="anovaResult" class="bg-gray-100 p-3 rounded overflow-auto"></div>
     </div>
 
 <script>
@@ -94,10 +95,12 @@ document.getElementById('runAnova').addEventListener('click', function() {
 
     let ssBetween = 0;
     let ssWithin = 0;
+    const groupMeans = {};
     groupNames.forEach(g => {
         const values = groups[g];
         const n = values.length;
         const mean = values.reduce((a,b) => a + b, 0) / n;
+        groupMeans[g] = mean;
         ssBetween += n * Math.pow(mean - grandMean, 2);
         values.forEach(v => {
             ssWithin += Math.pow(v - mean, 2);
@@ -109,21 +112,25 @@ document.getElementById('runAnova').addEventListener('click', function() {
     const msBetween = ssBetween / dfBetween;
     const msWithin = ssWithin / dfWithin;
     const F = msBetween / msWithin;
+    const pValue = 1 - jStat.centralF.cdf(F, dfBetween, dfWithin);
 
-    const result = {
-        'SS Entre grupos': ssBetween.toFixed(4),
-        'SS Dentro de grupos': ssWithin.toFixed(4),
-        'GL Entre grupos': dfBetween,
-        'GL Dentro de grupos': dfWithin,
-        'MS Entre grupos': msBetween.toFixed(4),
-        'MS Dentro de grupos': msWithin.toFixed(4),
-        'F': F.toFixed(4)
-    };
-    let text = '';
-    for (const [k, v] of Object.entries(result)) {
-        text += `${k}: ${v}\n`;
-    }
-    document.getElementById('anovaResult').textContent = text;
+    const ssTotal = ssBetween + ssWithin;
+    const dfTotal = N - 1;
+
+    let html = '<h2 class="font-semibold mb-2">Promedios</h2><ul class="mb-4">';
+    groupNames.forEach(g => {
+        html += `<li>${g}: ${groupMeans[g].toFixed(4)}</li>`;
+    });
+    html += '</ul>';
+
+    html += '<table class="min-w-full text-sm text-center">';
+    html += '<thead><tr><th>FV</th><th>SC</th><th>GL</th><th>CM</th><th>F0</th><th>Valor-p</th></tr></thead><tbody>';
+    html += `<tr><td>Entre grupos</td><td>${ssBetween.toFixed(4)}</td><td>${dfBetween}</td><td>${msBetween.toFixed(4)}</td><td>${F.toFixed(4)}</td><td>${pValue.toFixed(4)}</td></tr>`;
+    html += `<tr><td>Dentro de grupos</td><td>${ssWithin.toFixed(4)}</td><td>${dfWithin}</td><td>${msWithin.toFixed(4)}</td><td></td><td></td></tr>`;
+    html += `<tr><td>Total</td><td>${ssTotal.toFixed(4)}</td><td>${dfTotal}</td><td></td><td></td><td></td></tr>`;
+    html += '</tbody></table>';
+
+    document.getElementById('anovaResult').innerHTML = html;
 });
 </script>
 </body>
