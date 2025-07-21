@@ -1,0 +1,106 @@
+from anova import (
+    run_anova,
+    calculos_por_tratamiento,
+    calcular_lsd,
+    calcular_tukey,
+    calcular_duncan,
+)
+
+
+def generate_html(groups):
+    anova_res = run_anova(groups)
+    calcs = calculos_por_tratamiento(groups)
+    lsd = calcular_lsd(groups)
+    tukey = calcular_tukey(groups)
+    duncan = calcular_duncan(groups)
+
+    html = [
+        "<!DOCTYPE html>",
+        "<html lang='en'>",
+        "<head>",
+        "    <meta charset='UTF-8'>",
+        "    <title>Resultados ANOVA</title>",
+        "    <style>table{border-collapse:collapse}td,th{border:1px solid #ccc;padding:4px;text-align:center}</style>",
+        "</head>",
+        "<body>",
+        "<h1>Resultados ANOVA</h1>",
+    ]
+
+    html.append("<h2>Promedios</h2>")
+    html.append("<table><thead><tr><th>Grupo</th><th>Media</th></tr></thead><tbody>")
+    for g, m in anova_res['group_means'].items():
+        html.append(f"<tr><td>{g}</td><td>{m:.4f}</td></tr>")
+    html.append("</tbody></table>")
+
+    html.append("<h2>Estadísticas globales</h2>")
+    html.append(
+        "<table><thead><tr><th>Y..</th><th>N</th><th>Ȳ..</th><th>Suma de cuadrados total</th></tr></thead>"
+    )
+    html.append(
+        f"<tbody><tr><td>{calcs['total_general']}</td><td>{calcs['N']}</td><td>{calcs['media_global']:.4f}</td><td>{calcs['suma_cuadrados_total']:.4f}</td></tr></tbody></table>"
+    )
+
+    html.append("<h2>Estadísticas por tratamiento</h2>")
+    html.append(
+        "<table><thead><tr><th>Tratamiento</th><th>Yi·</th><th>ni</th><th>Ȳi</th><th>τ̂i</th></tr></thead><tbody>"
+    )
+    for g in calcs['totales_por_tratamiento'].keys():
+        html.append(
+            f"<tr><td>{g}</td><td>{calcs['totales_por_tratamiento'][g]}</td><td>{calcs['n_por_tratamiento'][g]}</td><td>{calcs['medias_por_tratamiento'][g]:.4f}</td><td>{calcs['desviaciones_respecto_media_global'][g]:.4f}</td></tr>"
+        )
+    html.append("</tbody></table>")
+
+    html.append("<h2>Tabla ANOVA</h2>")
+    html.append(
+        "<table><thead><tr><th>FV</th><th>SC</th><th>GL</th><th>CM</th><th>F0</th><th>Valor-p</th></tr></thead><tbody>"
+    )
+    html.append(
+        f"<tr><td>Tratamientos</td><td>{anova_res['SC_TRAT']:.4f}</td><td>{anova_res['GL_TRAT']}</td><td>{anova_res['CM_TRAT']:.4f}</td><td>{anova_res['F0']:.4f}</td><td>{anova_res['p_value']:.4f}</td></tr>"
+    )
+    html.append(
+        f"<tr><td>Error</td><td>{anova_res['SC_E']:.4f}</td><td>{anova_res['GL_E']}</td><td>{anova_res['CM_E']:.4f}</td><td></td><td></td></tr>"
+    )
+    html.append(
+        f"<tr><td>Total</td><td>{anova_res['SC_T']:.4f}</td><td>{anova_res['GL_T']}</td><td></td><td></td><td></td></tr>"
+    )
+    html.append("</tbody></table>")
+
+    def comparisons_table(title, res, label):
+        html.append(f"<h2>{title}</h2>")
+        html.append(
+            f"<table><thead><tr><th>Comparación</th><th>|Ȳi - Ȳj|</th><th>SE</th><th>{label}</th><th>Diferencia</th><th>Significativo</th></tr></thead><tbody>"
+        )
+        for key, comp in res['comparaciones'].items():
+            val_label = 'lsd' if label == 't crítico' else ('hsd' if label == 'q crítico' else 'dms')
+            diff_val = comp.get(val_label, 0)
+            crit = comp.get('t_crit') or comp.get('q_crit')
+            html.append(
+                f"<tr><td>{comp['grupo1']} - {comp['grupo2']}</td><td>{comp['diff']:.4f}</td><td>{comp['se']:.4f}</td><td>{crit:.4f}</td><td>{diff_val:.4f}</td><td>{'Sí' if comp['significant'] else 'No'}</td></tr>"
+            )
+        html.append("</tbody></table>")
+
+    comparisons_table('Prueba LSD', lsd, 't crítico')
+    comparisons_table('Prueba de Tukey', tukey, 'q crítico')
+    comparisons_table('Prueba de Duncan', duncan, 'q crítico')
+
+    html.append("</body></html>")
+    return "\n".join(html)
+
+
+def main():
+    # Datos de ejemplo equivalentes a los que se encontraban en la página HTML
+    groups = {
+        "A": [6, 8, 7, 8],
+        "B": [7, 9, 10, 8],
+        "C": [11, 16, 11, 13],
+        "D": [10, 12, 11, 9],
+    }
+
+    html = generate_html(groups)
+    with open("index.html", "w", encoding="utf-8") as f:
+        f.write(html)
+    print("Archivo index.html generado con los resultados")
+
+
+if __name__ == "__main__":
+    main()
