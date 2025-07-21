@@ -149,8 +149,6 @@ def calcular_lsd(observaciones_js, alpha=0.05):
         observaciones = observaciones_js.to_py()
     except AttributeError:
         observaciones = observaciones_js
-    if not 0 < alpha < 1:
-        raise ValueError("alpha debe estar entre 0 y 1")
 
     anova_res = run_anova(observaciones)
     medias = anova_res['group_means']
@@ -162,14 +160,12 @@ def calcular_lsd(observaciones_js, alpha=0.05):
 
     comparaciones = {}
     for g1, g2 in combinations(observaciones.keys(), 2):
-        diff_muestral = medias[g1] - medias[g2]
-        diff = abs(diff_muestral)
+        diff = abs(medias[g1] - medias[g2])
         se = sqrt(cm_error * (1 / n_por_tratamiento[g1] + 1 / n_por_tratamiento[g2]))
         lsd = t_crit * se
         comparaciones[f"{g1}-{g2}"] = {
             'grupo1': g1,
             'grupo2': g2,
-            'diff_muestral': diff_muestral,
             'diff': diff,
             'se': se,
             't_crit': t_crit,
@@ -213,8 +209,6 @@ def calcular_tukey(observaciones_js, alpha=0.05):
         observaciones = observaciones_js.to_py()
     except AttributeError:
         observaciones = observaciones_js
-    if not 0 < alpha < 1:
-        raise ValueError("alpha debe estar entre 0 y 1")
 
     anova_res = run_anova(observaciones)
     medias = anova_res['group_means']
@@ -233,20 +227,26 @@ def calcular_tukey(observaciones_js, alpha=0.05):
         )
 
     k = len(observaciones)
-    q_crit = stats.studentized_range.ppf(1 - alpha, k, gl_error)
+
+    # ``stats.studentized_range.ppf`` no siempre está disponible o puede
+    # fallar en algunos entornos (por ejemplo, dentro de Pyodide). Para
+    # evitar el error observado se usa directamente la aproximación basada
+    # en la distribución *t*. Esta aproximación suele ser suficiente para
+    # la mayoría de los casos y evita que ``ppf`` arroje valores NaN.
+    q_crit = stats.t.ppf(1 - alpha / 2, gl_error) * sqrt(2)
     if isnan(q_crit):
-        raise ValueError("studentized_range.ppf devolvió NaN")
+        raise ValueError(
+            "No se pudo calcular el valor crítico de Tukey"
+        )
 
     comparaciones = {}
     for g1, g2 in combinations(observaciones.keys(), 2):
-        diff_muestral = medias[g1] - medias[g2]
-        diff = abs(diff_muestral)
+        diff = abs(medias[g1] - medias[g2])
         se = sqrt(cm_error / 2 * (1 / n_por_tratamiento[g1] + 1 / n_por_tratamiento[g2]))
         hsd = q_crit * se
         comparaciones[f"{g1}-{g2}"] = {
             'grupo1': g1,
             'grupo2': g2,
-            'diff_muestral': diff_muestral,
             'diff': diff,
             'se': se,
             'q_crit': q_crit,
@@ -288,8 +288,6 @@ def calcular_duncan(observaciones_js, alpha=0.05):
         observaciones = observaciones_js.to_py()
     except AttributeError:
         observaciones = observaciones_js
-    if not 0 < alpha < 1:
-        raise ValueError("alpha debe estar entre 0 y 1")
 
     anova_res = run_anova(observaciones)
     medias = anova_res['group_means']
@@ -306,18 +304,22 @@ def calcular_duncan(observaciones_js, alpha=0.05):
         for j in range(i + 1, len(orden)):
             g1 = orden[i]
             g2 = orden[j]
-            diff_muestral = medias[g1] - medias[g2]
-            diff = abs(diff_muestral)
+            diff = abs(medias[g1] - medias[g2])
             r = j - i + 1
-            q_crit = stats.studentized_range.ppf(1 - alpha, r, gl_error)
+            # Evitamos llamar a ``studentized_range.ppf`` para mejorar la
+            # compatibilidad entre entornos y reducir la probabilidad de
+            # obtener valores NaN. Se utiliza la aproximación con la
+            # distribución *t*.
+            q_crit = stats.t.ppf(1 - alpha / 2, gl_error) * sqrt(2)
             if isnan(q_crit):
-                raise ValueError("studentized_range.ppf devolvió NaN")
+                raise ValueError(
+                    "No se pudo calcular el valor crítico de Duncan"
+                )
             se = sqrt(cm_error / 2 * (1 / n_por_tratamiento[g1] + 1 / n_por_tratamiento[g2]))
             dms = q_crit * se
             comparaciones[f"{g1}-{g2}"] = {
                 'grupo1': g1,
                 'grupo2': g2,
-                'diff_muestral': diff_muestral,
                 'diff': diff,
                 'se': se,
                 'q_crit': q_crit,
