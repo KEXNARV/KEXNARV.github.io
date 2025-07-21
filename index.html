@@ -109,7 +109,9 @@ async function runAnovaPy(groups) {
     const pyodide = await initPyodide;
     pyodide.globals.set('groups', groups);
     await pyodide.runPythonAsync('result = run_anova(groups)');
-    const result = pyodide.globals.get('result').toJs();
+    const result = pyodide.globals
+        .get('result')
+        .toJs({ dict_converter: Object.fromEntries });
     pyodide.globals.delete('result');
     pyodide.globals.delete('groups');
     return result;
