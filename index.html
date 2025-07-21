@@ -3,193 +3,98 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Company Dashboard</title>
-    <link rel="stylesheet" href="styles/main.css">
-    <!-- Tailwind CSS CDN -->
+    <title>ANOVA Table</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Fuente Bebas Neue de Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&display=swap" rel="stylesheet">
-    <style>
-      .boldonse-regular { font-family: 'Bebas Neue', sans-serif; }
-    </style>
-    <script src="java/Dashboard.js"></script>
 </head>
-<body class="bg-gray-100 text-gray-900 flex flex-col min-h-screen overflow-x-hidden"
-style="background-image: url('resources/images/background.png'); background-size: cover; background-position: center;">
-    <main class="mx-auto py-8 flex-1 w-full max-w-screen-lg px-4 glass rounded-lg">
-<!-- Solo el bloque del nav, el resto igual -->
-<nav class="relative mt-8 glass px-4 py-2 rounded-lg shadow-lg">
-    <div class="max-w-6xl mx-auto flex justify-center items-center h-8 relative">
-        <div id="nav-menu" class="flex space-x-12 items-center boldonse-regular relative">
-            <!-- Barra animada -->
-            <span id="nav-underline"
-                  class="absolute bottom-0 left-0 h-1 bg-blue-700 rounded transition-all duration-300 ease-in-out pointer-events-none"
-                  style="width:0;opacity:0;z-index:0;"></span>
-            <a href="#" data-target="inicio" class="nav-link text-gray-700 hover:text-blue-400 text-3xl font-bold boldonse-regular relative z-10">INICIO</a>
-            <a href="#" data-target="analisis" class="nav-link text-gray-700 hover:text-blue-400 text-3xl font-bold boldonse-regular relative z-10">DATOS Y GRAFICOS</a>
-            <a href="#" data-target="formularios" class="nav-link text-gray-700 hover:text-blue-400 text-3xl font-bold boldonse-regular relative z-10">FORMULARIOS</a>
-            <a href="#" data-target="accesos" class="nav-link text-gray-700 hover:text-blue-400 text-3xl font-bold boldonse-regular relative z-10">ACCESOS DIRECTOS</a>
+<body class="bg-gray-100 text-gray-800 p-8">
+    <div class="max-w-3xl mx-auto bg-white shadow rounded p-6">
+        <h1 class="text-2xl font-bold mb-4 text-center">Tabla de Datos</h1>
+        <table id="dataTable" class="min-w-full mb-4">
+            <thead>
+                <tr>
+                    <th class="border px-4 py-2">Grupo</th>
+                    <th class="border px-4 py-2">Valor</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td class="border px-2 py-1"><input class="group w-full p-1" type="text" /></td>
+                    <td class="border px-2 py-1"><input class="value w-full p-1" type="number" step="any" /></td>
+                </tr>
+            </tbody>
+        </table>
+        <div class="flex space-x-2 mb-4">
+            <button id="addRow" class="bg-blue-500 hover:bg-blue-600 text-white py-1 px-3 rounded">Agregar fila</button>
+            <button id="runAnova" class="bg-green-500 hover:bg-green-600 text-white py-1 px-3 rounded">Generar ANOVA</button>
         </div>
-    </div>
-</nav>
-<!-- Contenido dinámico -->
-    <div id="content-inicio" class="tab-content p-6 rounded-lg mt-16 sm:mt-32 lg:mt-64 mx-auto max-w-screen-lg">
-    <h2 class="text-6xl boldonse-regular mb-4 text-left">Bienvenido a Vergaser PROIASA</h2>
-        <p>Contenido de la página de inicio.</p>
+        <pre id="anovaResult" class="bg-gray-100 p-3 rounded overflow-auto"></pre>
     </div>
 
-    <div id="content-analisis" class="tab-content glass p-6 hidden mt-12 rounded-lg max-w-screen-lg mx-auto">
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 justify-center">
+<script>
+function addRow() {
+    const tbody = document.querySelector('#dataTable tbody');
+    const row = document.createElement('tr');
+    row.innerHTML = `<td class="border px-2 py-1"><input class="group w-full p-1" type="text" /></td>` +
+                    `<td class="border px-2 py-1"><input class="value w-full p-1" type="number" step="any" /></td>`;
+    tbody.appendChild(row);
+}
 
-    <div class="relative flex w-full flex-col rounded-xl glass-card text-gray-700 shadow-md">
-        <div class="relative mx-4 -mt-6 overflow-hidden rounded-xl bg-blue-gray-500 bg-clip-border text-white shadow-lg shadow-blue-gray-500/40 bg-gradient-to-r from-blue-500 to-blue-600">
-            <img src="resources/images/tallerbannercard.png" alt="Analisis de Recepciones" class="w-full h-full object-cover">
-    </div>
-  <div class="p-6">
-        <h5 class="mb-2 block font-sans text-xl font-semibold leading-snug tracking-normal text-blue-gray-900 antialiased">
-        Graficos de Analisis de Recepciones
-        </h5>
-        <p class="block font-sans text-base font-light leading-relaxed text-inherit antialiased">
-        Revisa las principales estadísticas de recepción mediante gráficos interactivos.
-        </p>
-    </div>
-    <div class="p-6 pt-0">
-        <a href="graficosderecepcion.html" class="inline-block select-none rounded-lg bg-blue-500 py-3 px-6 text-center align-middle font-sans text-xs font-bold uppercase text-white shadow-md shadow-blue-500/20 transition-all hover:shadow-lg hover:shadow-blue-500/40 focus:opacity-[0.85] focus:shadow-none active:opacity-[0.85] active:shadow-none disabled:pointer-events-none disabled:opacity-50 disabled:shadow-none">
-        Ver Graficos
-        </a>
-    </div>
-    </div>
+document.getElementById('addRow').addEventListener('click', addRow);
 
-    <div class="relative flex w-full flex-col rounded-xl glass-card text-gray-700 shadow-md">
-        <div class="relative mx-4 -mt-6 overflow-hidden rounded-xl bg-blue-gray-500 bg-clip-border text-white shadow-lg shadow-blue-gray-500/40 bg-gradient-to-r from-blue-500 to-blue-600">
-            <img src="resources/images/tallerbannercard.png" alt="Analisis de Recepciones" class="w-full h-full object-cover">
-    </div>
-  <div class="p-6">
-        <h5 class="mb-2 block font-sans text-xl font-semibold leading-snug tracking-normal text-blue-gray-900 antialiased">
-        Proximamente
-        </h5>
-        <p class="block font-sans text-base font-light leading-relaxed text-inherit antialiased">
-        Proximamente
-        </p>
-    </div>
-    <div class="p-6 pt-0">
-        <a href="" class="inline-block select-none rounded-lg bg-blue-500 py-3 px-6 text-center align-middle font-sans text-xs font-bold uppercase text-white shadow-md shadow-blue-500/20 transition-all hover:shadow-lg hover:shadow-blue-500/40 focus:opacity-[0.85] focus:shadow-none active:opacity-[0.85] active:shadow-none disabled:pointer-events-none disabled:opacity-50 disabled:shadow-none">
-        Ver Graficos
-        </a>
-    </div>
-    </div>
+document.getElementById('runAnova').addEventListener('click', function() {
+    const rows = document.querySelectorAll('#dataTable tbody tr');
+    const groups = {};
+    rows.forEach(row => {
+        const g = row.querySelector('.group').value.trim();
+        const v = parseFloat(row.querySelector('.value').value);
+        if (g && !isNaN(v)) {
+            groups[g] = groups[g] || [];
+            groups[g].push(v);
+        }
+    });
+    const groupNames = Object.keys(groups);
+    if (groupNames.length < 2) {
+        document.getElementById('anovaResult').textContent = 'Se requieren al menos dos grupos con valores.';
+        return;
+    }
+    const allValues = [];
+    groupNames.forEach(g => allValues.push(...groups[g]));
+    const N = allValues.length;
+    const grandMean = allValues.reduce((a,b) => a + b, 0) / N;
 
-    <div class="relative flex w-full flex-col rounded-xl glass-card text-gray-700 shadow-md">
-        <div class="relative mx-4 -mt-6 overflow-hidden rounded-xl bg-blue-gray-500 bg-clip-border text-white shadow-lg shadow-blue-gray-500/40 bg-gradient-to-r from-blue-500 to-blue-600">
-            <img src="resources/images/tallerbannercard.png" alt="Analisis de Recepciones" class="w-full h-full object-cover">
-    </div>
-  <div class="p-6">
-        <h5 class="mb-2 block font-sans text-xl font-semibold leading-snug tracking-normal text-blue-gray-900 antialiased">
-        Proximamente
-        </h5>
-        <p class="block font-sans text-base font-light leading-relaxed text-inherit antialiased">
-        Proximamente
-        </p>
-    </div>
-    <div class="p-6 pt-0">
-        <a href="" class="inline-block select-none rounded-lg bg-blue-500 py-3 px-6 text-center align-middle font-sans text-xs font-bold uppercase text-white shadow-md shadow-blue-500/20 transition-all hover:shadow-lg hover:shadow-blue-500/40 focus:opacity-[0.85] focus:shadow-none active:opacity-[0.85] active:shadow-none disabled:pointer-events-none disabled:opacity-50 disabled:shadow-none">
-        Ver Graficos
-        </a>
-    </div>
-    </div>
+    let ssBetween = 0;
+    let ssWithin = 0;
+    groupNames.forEach(g => {
+        const values = groups[g];
+        const n = values.length;
+        const mean = values.reduce((a,b) => a + b, 0) / n;
+        ssBetween += n * Math.pow(mean - grandMean, 2);
+        values.forEach(v => {
+            ssWithin += Math.pow(v - mean, 2);
+        });
+    });
 
-    <div class="relative flex w-full flex-col rounded-xl glass-card text-gray-700 shadow-md">
-        <div class="relative mx-4 -mt-6 overflow-hidden rounded-xl bg-blue-gray-500 bg-clip-border text-white shadow-lg shadow-blue-gray-500/40 bg-gradient-to-r from-blue-500 to-blue-600">
-            <img src="resources/images/tallerbannercard.png" alt="Analisis de Recepciones" class="w-full h-full object-cover">
-    </div>
-  <div class="p-6">
-        <h5 class="mb-2 block font-sans text-xl font-semibold leading-snug tracking-normal text-blue-gray-900 antialiased">
-        Proximamente
-        </h5>
-        <p class="block font-sans text-base font-light leading-relaxed text-inherit antialiased">
-        Proximamente
-        </p>
-    </div>
-    <div class="p-6 pt-0">
-        <a href="" class="inline-block select-none rounded-lg bg-blue-500 py-3 px-6 text-center align-middle font-sans text-xs font-bold uppercase text-white shadow-md shadow-blue-500/20 transition-all hover:shadow-lg hover:shadow-blue-500/40 focus:opacity-[0.85] focus:shadow-none active:opacity-[0.85] active:shadow-none disabled:pointer-events-none disabled:opacity-50 disabled:shadow-none">
-        Ver Graficos
-        </a>
-    </div>
-    </div>
-    
-    </div>
+    const dfBetween = groupNames.length - 1;
+    const dfWithin = N - groupNames.length;
+    const msBetween = ssBetween / dfBetween;
+    const msWithin = ssWithin / dfWithin;
+    const F = msBetween / msWithin;
 
-    </div>
-
-    <div id="content-formularios" class="tab-content glass p-6 hidden rounded-lg max-w-screen-lg mx-auto">
-        <h2 class="text-2xl font-bold mb-4">Formularios</h2>
-        <p>Contenido de formularios.</p>
-    </div>
-    
-    <div id="content-accesos" class="tab-content glass p-6 hidden rounded-lg max-w-screen-lg mx-auto">
-        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mx-auto mt-12 max-w-screen-lg">
-              <!-- Card 1 -->
-        <div class=" glass-card rounded-xl shadow-lg overflow-hidden flex flex-col">
-            <!-- Imagen -->
-            <div class="overflow-hidden">
-            <img src="resources/images/recepcion.png" alt="Imagen 1" class="w-full h-full object-cover">
-            </div>
-            <!-- Contenido -->
-            <div class="p-4 flex-1 flex flex-col justify-between">
-            <h3 class="text-lg font-semibold text-gray-800 mb-2">Ordenes de recepción</h3>
-            <p class="text-gray-600 text-sm">Ver y editar registros de ordenes de recepción</p>
-            <br>
-            <a href="basederecepciones.html" class="mt-auto inline-block w-full rounded-md bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700 transition-colors text-center">
-                editar
-            </a>
-            </div>
-        </div>
-              <!-- Card 1 -->
-        <div id="user-management-card" class="glass-card rounded-xl shadow-lg overflow-hidden flex flex-col">
-            <div class="overflow-hidden">
-                <img src="resources/images/comingsoon.png" alt="Usuarios" class="w-full h-full object-cover">
-            </div>
-            <div class="p-4 flex-1 flex flex-col justify-between">
-                <h3 class="text-lg font-semibold text-gray-800 mb-2">Usuarios</h3>
-                <p class="text-gray-600 text-sm">Agregar o modificar usuarios del sistema.</p>
-                <br>
-                <a href="usuarios.html" class="mt-auto inline-block w-full rounded-md bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700 transition-colors text-center">
-                    administrar
-                </a>
-            </div>
-        </div>
-      <!-- Card 1 -->
-        <div class="glass-card rounded-xl shadow-lg overflow-hidden flex flex-col">
-    <!-- Imagen -->
-            <div class="overflow-hidden">
-            <img src="resources/images/comingsoon.png" alt="Imagen 1" class="w-full h-full object-cover">
-            </div>
-            <!-- Contenido -->
-            <div class="p-4 flex-1 flex flex-col justify-between">
-            <h3 class="text-lg font-semibold text-gray-800 mb-2">Título de la Card</h3>
-            <p class="text-gray-600 text-sm">Descripción breve de esta tarjeta. Aquí se pueden poner detalles o un resumen del contenido.</p>
-            </div>
-        </div>
-              <!-- Card 1 -->
-        <div class="glass-card rounded-xl shadow-lg overflow-hidden flex flex-col">
-            <!-- Imagen -->
-            <div class=" overflow-hidden">
-            <img src="resources/images/comingsoon.png" alt="Imagen 1" class="w-full h-full object-cover">
-            </div>
-            <!-- Contenido -->
-            <div class="p-4 flex-1 flex flex-col justify-between">
-            <h3 class="text-lg font-semibold text-gray-800 mb-2">Título de la Card</h3>
-            <p class="text-gray-600 text-sm">Descripción breve de esta tarjeta. Aquí se pueden poner detalles o un resumen del contenido.</p>
-            </div>
-        </div>
-        </div>
-
-    </div>
-</main>
-<footer class="bg-transparent text-white text-left p-4 mt-auto w-full">
-    <p class="text-black">&copy; 2025 PROIASA. All rights reserved.
-        <a href="#" id="logout-link" class="text-blue-600 ml-4">Cerrar sesi&oacute;n</a>
-    </p>
-</footer>
+    const result = {
+        'SS Entre grupos': ssBetween.toFixed(4),
+        'SS Dentro de grupos': ssWithin.toFixed(4),
+        'GL Entre grupos': dfBetween,
+        'GL Dentro de grupos': dfWithin,
+        'MS Entre grupos': msBetween.toFixed(4),
+        'MS Dentro de grupos': msWithin.toFixed(4),
+        'F': F.toFixed(4)
+    };
+    let text = '';
+    for (const [k, v] of Object.entries(result)) {
+        text += `${k}: ${v}\n`;
+    }
+    document.getElementById('anovaResult').textContent = text;
+});
+</script>
 </body>
 </html>
