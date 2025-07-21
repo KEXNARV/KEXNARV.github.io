@@ -169,9 +169,10 @@ def calcular_lsd(observaciones_js, alpha=0.05):
             'se': se,
             't_crit': t_crit,
             'lsd': lsd,
-            # Para evitar que pequeños errores de redondeo marquen una
-            # diferencia como significativa, se añade una tolerancia.
-            'significant': diff + 1e-12 >= lsd,
+            # Consideramos significativa la diferencia solo cuando es mayor o
+            # igual a la LSD calculada. Se elimina la tolerancia previa para
+            # evitar falsos positivos cuando |Ȳi - Ȳj| < LSD.
+            'significant': diff >= lsd,
         }
 
     return {
