@@ -40,3 +40,55 @@ def run_anova(groups_js):
         'F0': F0,
         'p_value': p_value,
     }
+
+
+def calculos_por_tratamiento(observaciones):
+    """Calcula estadísticas básicas a partir de las observaciones."""
+
+    # Datos de observaciones por tratamiento (método de ensamble)
+
+    # Paso 1: Calcular el total por tratamiento (Yi·)
+    totales_por_tratamiento = {
+        k: sum(v) for k, v in observaciones.items()
+    }
+
+    # Paso 2: Calcular el número de datos por tratamiento (ni)
+    n_por_tratamiento = {
+        k: len(v) for k, v in observaciones.items()
+    }
+
+    # Paso 3: Calcular la media muestral por tratamiento (Ȳi)
+    medias_por_tratamiento = {
+        k: sum(v) / len(v) for k, v in observaciones.items()
+    }
+
+    # Paso 4: Calcular la suma total de los datos (Y..)
+    total_general = sum(sum(v) for v in observaciones.values())
+
+    # Paso 5: Calcular el número total de observaciones (N)
+    N = sum(len(v) for v in observaciones.values())
+
+    # Paso 6: Calcular la media global (Ȳ..)
+    media_global = total_general / N
+
+    # Paso 7: Calcular las desviaciones respecto a la media global (τ̂i)
+    desviaciones_respecto_media_global = {
+        k: medias_por_tratamiento[k] - media_global
+        for k in observaciones
+    }
+
+    # Paso 8: Calcular la suma de los cuadrados de todos los datos
+    suma_cuadrados_total = sum(
+        y ** 2 for grupo in observaciones.values() for y in grupo
+    )
+
+    return {
+        'totales_por_tratamiento': totales_por_tratamiento,
+        'n_por_tratamiento': n_por_tratamiento,
+        'medias_por_tratamiento': medias_por_tratamiento,
+        'total_general': total_general,
+        'N': N,
+        'media_global': media_global,
+        'desviaciones_respecto_media_global': desviaciones_respecto_media_global,
+        'suma_cuadrados_total': suma_cuadrados_total,
+    }
