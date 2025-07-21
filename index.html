@@ -218,7 +218,7 @@ document.getElementById('runAnova').addEventListener('click', async function() {
             `<td>${c.se.toFixed(4)}</td>` +
             `<td>${c.t_crit.toFixed(4)}</td>` +
             `<td>${c.lsd.toFixed(4)}</td>` +
-            `<td>${c.significant ? 'Sí' : 'No'}</td></tr>`;
+            `<td>${c.significant ? 'Significativo' : 'No significativo'}</td></tr>`;
     });
     html += '</tbody></table>';
 
