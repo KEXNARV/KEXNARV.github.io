@@ -381,3 +381,44 @@ def prueba_shapiro(observaciones_js):
         'p_value': p_value,
         'tabla': tabla,
     }
+
+
+def prueba_bartlett(observaciones_js):
+    """Aplica la prueba de Bartlett para homogeneidad de varianzas."""
+
+    from math import log
+    from scipy import stats
+    import numpy as np
+
+    try:
+        observaciones = observaciones_js.to_py()
+    except AttributeError:
+        observaciones = observaciones_js
+
+    # Calcular varianzas por grupo
+    tabla = []
+    N = 0
+    suma_componentes = 0.0
+    suma_inversos = 0.0
+    for grupo, valores in observaciones.items():
+        n = len(valores)
+        var = float(np.var(valores, ddof=1))
+        tabla.append({'grupo': grupo, 'n': n, 'var': var})
+        N += n
+        suma_componentes += (n - 1) * var
+        suma_inversos += 1 / (n - 1)
+
+    k = len(observaciones)
+    pooled_var = suma_componentes / (N - k)
+    calc1 = (N - k) * log(pooled_var)
+    calc2 = sum((row['n'] - 1) * log(row['var']) for row in tabla)
+    C = 1 + (suma_inversos - 1 / (N - k)) / (3 * (k - 1))
+    chi2 = (calc1 - calc2) / C
+    p_value = stats.chi2.sf(chi2, k - 1)
+
+    return {
+        'k': k,
+        'chi2': chi2,
+        'p_value': p_value,
+        'tabla': tabla,
+    }

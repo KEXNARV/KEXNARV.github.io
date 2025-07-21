@@ -5,6 +5,7 @@ from anova import (
     calcular_tukey,
     calcular_duncan,
     prueba_shapiro,
+    prueba_bartlett,
 )
 
 
@@ -15,6 +16,7 @@ def generate_html(groups):
     tukey = calcular_tukey(groups)
     duncan = calcular_duncan(groups)
     shapiro = prueba_shapiro(groups)
+    bartlett = prueba_bartlett(groups)
 
     html = [
         "<!DOCTYPE html>",
@@ -81,6 +83,20 @@ def generate_html(groups):
         )
     html.append("</tbody></table>")
 
+    html.append("<h2>Prueba de homogeneidad (Bartlett)</h2>")
+    html.append(
+        "<table><thead><tr><th>k</th><th>Chi-cuadrado</th><th>Valor-p</th></tr></thead>"
+        f"<tbody><tr><td>{bartlett['k']}</td><td>{bartlett['chi2']:.4f}</td><td>{bartlett['p_value']:.4f}</td></tr></tbody></table>"
+    )
+    html.append(
+        "<table><thead><tr><th>Grupo</th><th>n<sub>i</sub></th><th>Varianza</th></tr></thead><tbody>"
+    )
+    for fila in bartlett['tabla']:
+        html.append(
+            f"<tr><td>{fila['grupo']}</td><td>{fila['n']}</td><td>{fila['var']:.4f}</td></tr>"
+        )
+    html.append("</tbody></table>")
+
     def comparisons_table(title, res, label):
         html.append(f"<h2>{title}</h2>")
         html.append(
@@ -133,6 +149,14 @@ def format_text(groups):
         lines.append(
             f"{fila['i']}\t{fila['ai']:.4f}\t{fila['diff']:.4f}\t{fila['ai_diff']:.4f}"
         )
+
+    lines.append("\nPrueba de homogeneidad de varianzas (Bartlett)")
+    lines.append(
+        f"k={bartlett['k']}, chi2={bartlett['chi2']:.4f}, p-value={bartlett['p_value']:.4f}"
+    )
+    lines.append("Grupo\tni\tVarianza")
+    for fila in bartlett['tabla']:
+        lines.append(f"{fila['grupo']}\t{fila['n']}\t{fila['var']:.4f}")
 
     def comps(title, res, key):
         lines.append(f"\n{title}")
