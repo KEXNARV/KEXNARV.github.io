@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ANOVA Table</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/pyodide/v0.24.1/full/pyodide.js"></script>
 </head>
 <body class="bg-gray-100 text-gray-800 p-8">
     <div class="max-w-3xl mx-auto bg-white shadow rounded p-6">
@@ -14,12 +15,39 @@
                 <tr>
                     <th class="border px-4 py-2">Grupo</th>
                     <th class="border px-4 py-2">Valor 1</th>
+                    <th class="border px-4 py-2">Valor 2</th>
+                    <th class="border px-4 py-2">Valor 3</th>
+                    <th class="border px-4 py-2">Valor 4</th>
                 </tr>
             </thead>
             <tbody>
                 <tr>
-                    <td class="border px-2 py-1"><input class="group w-full p-1" type="text" /></td>
-                    <td class="border px-2 py-1"><input class="value w-full p-1" type="number" step="any" /></td>
+                    <td class="border px-2 py-1"><input class="group w-full p-1" type="text" value="A" /></td>
+                    <td class="border px-2 py-1"><input class="value w-full p-1" type="number" step="any" value="6" /></td>
+                    <td class="border px-2 py-1"><input class="value w-full p-1" type="number" step="any" value="8" /></td>
+                    <td class="border px-2 py-1"><input class="value w-full p-1" type="number" step="any" value="7" /></td>
+                    <td class="border px-2 py-1"><input class="value w-full p-1" type="number" step="any" value="8" /></td>
+                </tr>
+                <tr>
+                    <td class="border px-2 py-1"><input class="group w-full p-1" type="text" value="B" /></td>
+                    <td class="border px-2 py-1"><input class="value w-full p-1" type="number" step="any" value="7" /></td>
+                    <td class="border px-2 py-1"><input class="value w-full p-1" type="number" step="any" value="9" /></td>
+                    <td class="border px-2 py-1"><input class="value w-full p-1" type="number" step="any" value="10" /></td>
+                    <td class="border px-2 py-1"><input class="value w-full p-1" type="number" step="any" value="8" /></td>
+                </tr>
+                <tr>
+                    <td class="border px-2 py-1"><input class="group w-full p-1" type="text" value="C" /></td>
+                    <td class="border px-2 py-1"><input class="value w-full p-1" type="number" step="any" value="11" /></td>
+                    <td class="border px-2 py-1"><input class="value w-full p-1" type="number" step="any" value="16" /></td>
+                    <td class="border px-2 py-1"><input class="value w-full p-1" type="number" step="any" value="11" /></td>
+                    <td class="border px-2 py-1"><input class="value w-full p-1" type="number" step="any" value="13" /></td>
+                </tr>
+                <tr>
+                    <td class="border px-2 py-1"><input class="group w-full p-1" type="text" value="D" /></td>
+                    <td class="border px-2 py-1"><input class="value w-full p-1" type="number" step="any" value="10" /></td>
+                    <td class="border px-2 py-1"><input class="value w-full p-1" type="number" step="any" value="12" /></td>
+                    <td class="border px-2 py-1"><input class="value w-full p-1" type="number" step="any" value="11" /></td>
+                    <td class="border px-2 py-1"><input class="value w-full p-1" type="number" step="any" value="9" /></td>
                 </tr>
             </tbody>
         </table>
@@ -28,7 +56,7 @@
             <button id="addColumn" class="bg-blue-500 hover:bg-blue-600 text-white py-1 px-3 rounded">Agregar columna</button>
             <button id="runAnova" class="bg-green-500 hover:bg-green-600 text-white py-1 px-3 rounded">Generar ANOVA</button>
         </div>
-        <pre id="anovaResult" class="bg-gray-100 p-3 rounded overflow-auto"></pre>
+        <div id="anovaResult" class="bg-gray-100 p-3 rounded overflow-auto"></div>
     </div>
 
 <script>
@@ -68,8 +96,82 @@ function addColumn() {
 
 document.getElementById('addRow').addEventListener('click', addRow);
 document.getElementById('addColumn').addEventListener('click', addColumn);
+const pyodideReady = loadPyodide({ indexURL: 'https://cdn.jsdelivr.net/pyodide/v0.24.1/full/' });
 
-document.getElementById('runAnova').addEventListener('click', function() {
+async function runAnovaPy(groups) {
+    const pyodide = await pyodideReady;
+    await pyodide.loadPackage('scipy');
+    pyodide.globals.set('groups', groups);
+    pyodide.runPython(`
+# Paso 1: Definir los grupos de tratamiento y sus observaciones
+# observaciones = {
+#     'A': [6, 8, 7, 8],
+#     'B': [7, 9, 10, 8],
+#     'C': [11, 16, 11, 13],
+#     'D': [10, 12, 11, 9]
+# }
+# Paso 2: Calcular el total de observaciones por tratamiento (Yi·)
+# total_por_tratamiento = {k: sum(v) for k, v in observaciones.items()}
+# Paso 3: Calcular el número de observaciones por tratamiento (ni)
+# n_por_tratamiento = {k: len(v) for k, v in observaciones.items()}
+# Paso 4: Calcular el total general de todas las observaciones (Y··)
+# total_general = sum(total_por_tratamiento.values())
+# Paso 5: Calcular el número total de observaciones (N)
+# N = sum(n_por_tratamiento.values())
+# Paso 6: Calcular la suma de cuadrados total (SC_T)
+# SC_T = sum(y**2 for grupo in observaciones.values() for y in grupo) - (total_general**2) / N
+# Paso 7: Calcular la suma de cuadrados de tratamientos (SC_TRAT)
+# SC_TRAT = sum((total_por_tratamiento[k]**2) / n_por_tratamiento[k] for k in observaciones) - (total_general**2) / N
+# Paso 8: Calcular la suma de cuadrados del error (SC_E)
+# SC_E = SC_T - SC_TRAT
+# Paso 9: Calcular los grados de libertad
+# GL_TRAT = k - 1                      # donde k = número de tratamientos
+# GL_E = N - k
+# GL_T = N - 1
+# Paso 10: Calcular los cuadrados medios
+# CM_TRAT = SC_TRAT / GL_TRAT
+# CM_E = SC_E / GL_E
+# Paso 11: Calcular el estadístico F
+# F0 = CM_TRAT / CM_E
+# Paso 12: Obtener el valor-p correspondiente al F calculado
+# p_value = 1 - stats.f.cdf(F0, GL_TRAT, GL_E)
+from scipy import stats
+group_names = list(groups.keys())
+k = len(group_names)
+n_i_list = [len(groups[g]) for g in group_names]
+N = sum(n_i_list)
+Y_total = sum(sum(groups[g]) for g in group_names)
+SC_T = sum(y*y for g in group_names for y in groups[g]) - (Y_total**2) / N
+SC_TRAT = sum((sum(groups[g])**2)/len(groups[g]) for g in group_names) - (Y_total**2)/N
+SC_E = SC_T - SC_TRAT
+GL_TRAT = k - 1
+GL_E = N - k
+GL_T = N - 1
+CM_TRAT = SC_TRAT / GL_TRAT
+CM_E = SC_E / GL_E
+F0 = CM_TRAT / CM_E
+p_value = stats.f.sf(F0, GL_TRAT, GL_E)
+group_means = {g: sum(groups[g])/len(groups[g]) for g in group_names}
+result = {
+    'group_means': group_means,
+    'SC_TRAT': SC_TRAT,
+    'SC_E': SC_E,
+    'SC_T': SC_T,
+    'GL_TRAT': GL_TRAT,
+    'GL_E': GL_E,
+    'GL_T': GL_T,
+    'CM_TRAT': CM_TRAT,
+    'CM_E': CM_E,
+    'F0': F0,
+    'p_value': p_value,
+}
+`);
+    const result = pyodide.globals.get('result').toJs();
+    pyodide.globals.delete('result');
+    return result;
+}
+
+document.getElementById('runAnova').addEventListener('click', async function() {
     const rows = document.querySelectorAll('#dataTable tbody tr');
     const groups = {};
     rows.forEach(row => {
@@ -87,44 +189,28 @@ document.getElementById('runAnova').addEventListener('click', function() {
         document.getElementById('anovaResult').textContent = 'Se requieren al menos dos grupos con valores.';
         return;
     }
-    const allValues = [];
-    groupNames.forEach(g => allValues.push(...groups[g]));
-    const N = allValues.length;
-    const grandMean = allValues.reduce((a,b) => a + b, 0) / N;
 
-    let ssBetween = 0;
-    let ssWithin = 0;
-    groupNames.forEach(g => {
-        const values = groups[g];
-        const n = values.length;
-        const mean = values.reduce((a,b) => a + b, 0) / n;
-        ssBetween += n * Math.pow(mean - grandMean, 2);
-        values.forEach(v => {
-            ssWithin += Math.pow(v - mean, 2);
-        });
+    const result = await runAnovaPy(groups);
+    const groupMeans = result.group_means;
+
+    let html = '<h2 class="font-semibold mb-2">Promedios</h2>';
+    html += '<table class="mb-4 min-w-full text-sm text-center"><thead><tr>';
+    html += '<th>Grupo</th><th>Media</th></tr></thead><tbody>';
+    Object.keys(groupMeans).forEach(g => {
+        html += `<tr><td>${g}</td><td>${groupMeans[g].toFixed(4)}</td></tr>`;
     });
+    html += '</tbody></table>';
 
-    const dfBetween = groupNames.length - 1;
-    const dfWithin = N - groupNames.length;
-    const msBetween = ssBetween / dfBetween;
-    const msWithin = ssWithin / dfWithin;
-    const F = msBetween / msWithin;
+    html += '<table class="min-w-full text-sm text-center">';
+    html += '<thead><tr><th>FV</th><th>SC</th><th>GL</th><th>CM</th><th>F0</th><th>Valor-p</th></tr></thead><tbody>';
+    html += `<tr><td>Tratamientos</td><td>${result.SC_TRAT.toFixed(4)}</td><td>${result.GL_TRAT}</td><td>${result.CM_TRAT.toFixed(4)}</td><td>${result.F0.toFixed(4)}</td><td>${result.p_value.toFixed(4)}</td></tr>`;
+    html += `<tr><td>Error</td><td>${result.SC_E.toFixed(4)}</td><td>${result.GL_E}</td><td>${result.CM_E.toFixed(4)}</td><td></td><td></td></tr>`;
+    html += `<tr><td>Total</td><td>${result.SC_T.toFixed(4)}</td><td>${result.GL_T}</td><td></td><td></td><td></td></tr>`;
+    html += '</tbody></table>';
 
-    const result = {
-        'SS Entre grupos': ssBetween.toFixed(4),
-        'SS Dentro de grupos': ssWithin.toFixed(4),
-        'GL Entre grupos': dfBetween,
-        'GL Dentro de grupos': dfWithin,
-        'MS Entre grupos': msBetween.toFixed(4),
-        'MS Dentro de grupos': msWithin.toFixed(4),
-        'F': F.toFixed(4)
-    };
-    let text = '';
-    for (const [k, v] of Object.entries(result)) {
-        text += `${k}: ${v}\n`;
-    }
-    document.getElementById('anovaResult').textContent = text;
+    document.getElementById('anovaResult').innerHTML = html;
 });
+
 </script>
 </body>
 </html>
