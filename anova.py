@@ -19,13 +19,12 @@ def run_anova(groups_js):
     SC_T = sum(y*y for g in group_names for y in groups[g]) - (Y_total**2) / N
     SC_TRAT = sum((sum(groups[g])**2)/len(groups[g]) for g in group_names) - (Y_total**2)/N
     SC_E = SC_T - SC_TRAT
-    cm_results = calcular_cuadrados_medios(SC_TRAT, SC_E, k, N)
-    GL_TRAT = cm_results['gl_trat']
-    GL_E = cm_results['gl_error']
+    GL_TRAT = k - 1
+    GL_E = N - k
     GL_T = N - 1
-    CM_TRAT = cm_results['cm_trat']
-    CM_E = cm_results['cm_error']
-    F0 = cm_results['f0']
+    CM_TRAT = SC_TRAT / GL_TRAT
+    CM_E = SC_E / GL_E
+    F0 = CM_TRAT / CM_E
     p_value = stats.f.sf(F0, GL_TRAT, GL_E)
     group_means = {g: sum(groups[g])/len(groups[g]) for g in group_names}
     return {
@@ -43,25 +42,17 @@ def run_anova(groups_js):
     }
 
 
-def calcular_cuadrados_medios(sc_trat, sc_error, k, N):
-    """Calcula los cuadrados medios y el estadístico F para ANOVA."""
+def calculos_por_tratamiento(observaciones_js):
+    """Calcula estadísticas básicas a partir de las observaciones.
 
-    gl_trat = k - 1
-    gl_error = N - k
-    cm_trat = sc_trat / gl_trat
-    cm_error = sc_error / gl_error
-    f0 = cm_trat / cm_error
-    return {
-        'gl_trat': gl_trat,
-        'gl_error': gl_error,
-        'cm_trat': cm_trat,
-        'cm_error': cm_error,
-        'f0': f0,
-    }
+    The input may come from JavaScript via Pyodide, in which case it will be a
+    ``JsProxy``.  Handle both that and regular Python ``dict`` input.
+    """
 
-
-def calculos_por_tratamiento(observaciones):
-    """Calcula estadísticas básicas a partir de las observaciones."""
+    try:
+        observaciones = observaciones_js.to_py()
+    except AttributeError:
+        observaciones = observaciones_js
 
     # Datos de observaciones por tratamiento (método de ensamble)
 
