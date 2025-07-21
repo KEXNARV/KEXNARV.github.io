@@ -13,7 +13,7 @@
             <thead>
                 <tr>
                     <th class="border px-4 py-2">Grupo</th>
-                    <th class="border px-4 py-2">Valor</th>
+                    <th class="border px-4 py-2">Valor 1</th>
                 </tr>
             </thead>
             <tbody>
@@ -25,31 +25,61 @@
         </table>
         <div class="flex space-x-2 mb-4">
             <button id="addRow" class="bg-blue-500 hover:bg-blue-600 text-white py-1 px-3 rounded">Agregar fila</button>
+            <button id="addColumn" class="bg-blue-500 hover:bg-blue-600 text-white py-1 px-3 rounded">Agregar columna</button>
             <button id="runAnova" class="bg-green-500 hover:bg-green-600 text-white py-1 px-3 rounded">Generar ANOVA</button>
         </div>
         <pre id="anovaResult" class="bg-gray-100 p-3 rounded overflow-auto"></pre>
     </div>
 
 <script>
+function getValueColumnCount() {
+    return document.querySelector('#dataTable thead tr').cells.length - 1;
+}
+
 function addRow() {
     const tbody = document.querySelector('#dataTable tbody');
+    const numValues = getValueColumnCount();
     const row = document.createElement('tr');
-    row.innerHTML = `<td class="border px-2 py-1"><input class="group w-full p-1" type="text" /></td>` +
-                    `<td class="border px-2 py-1"><input class="value w-full p-1" type="number" step="any" /></td>`;
+    let html = `<td class="border px-2 py-1"><input class="group w-full p-1" type="text" /></td>`;
+    for (let i = 0; i < numValues; i++) {
+        html += `<td class="border px-2 py-1"><input class="value w-full p-1" type="number" step="any" /></td>`;
+    }
+    row.innerHTML = html;
     tbody.appendChild(row);
 }
 
+function addColumn() {
+    const table = document.getElementById('dataTable');
+    const theadRow = table.querySelector('thead tr');
+    const newIndex = getValueColumnCount() + 1;
+    const th = document.createElement('th');
+    th.className = 'border px-4 py-2';
+    th.textContent = `Valor ${newIndex}`;
+    theadRow.appendChild(th);
+
+    const rows = table.querySelectorAll('tbody tr');
+    rows.forEach(row => {
+        const td = document.createElement('td');
+        td.className = 'border px-2 py-1';
+        td.innerHTML = '<input class="value w-full p-1" type="number" step="any" />';
+        row.appendChild(td);
+    });
+}
+
 document.getElementById('addRow').addEventListener('click', addRow);
+document.getElementById('addColumn').addEventListener('click', addColumn);
 
 document.getElementById('runAnova').addEventListener('click', function() {
     const rows = document.querySelectorAll('#dataTable tbody tr');
     const groups = {};
     rows.forEach(row => {
         const g = row.querySelector('.group').value.trim();
-        const v = parseFloat(row.querySelector('.value').value);
-        if (g && !isNaN(v)) {
+        const values = Array.from(row.querySelectorAll('.value'))
+            .map(input => parseFloat(input.value))
+            .filter(v => !isNaN(v));
+        if (g && values.length > 0) {
             groups[g] = groups[g] || [];
-            groups[g].push(v);
+            groups[g].push(...values);
         }
     });
     const groupNames = Object.keys(groups);
