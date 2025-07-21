@@ -335,3 +335,23 @@ def calcular_duncan(observaciones_js, alpha=0.05):
     return {
         'comparaciones': comparaciones,
     }
+
+
+def prueba_shapiro(observaciones_js):
+    """Aplica la prueba de Shapiro-Wilk a los residuos del modelo."""
+
+    from scipy import stats
+
+    try:
+        observaciones = observaciones_js.to_py()
+    except AttributeError:
+        observaciones = observaciones_js
+
+    medias = {k: sum(v) / len(v) for k, v in observaciones.items()}
+    residuos = [y - medias[g] for g, vals in observaciones.items() for y in vals]
+
+    stat, p_value = stats.shapiro(residuos)
+    return {
+        'w': stat,
+        'p_value': p_value,
+    }

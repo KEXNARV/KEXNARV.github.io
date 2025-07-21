@@ -4,6 +4,7 @@ from anova import (
     calcular_lsd,
     calcular_tukey,
     calcular_duncan,
+    prueba_shapiro,
 )
 
 
@@ -13,6 +14,7 @@ def generate_html(groups):
     lsd = calcular_lsd(groups)
     tukey = calcular_tukey(groups)
     duncan = calcular_duncan(groups)
+    shapiro = prueba_shapiro(groups)
 
     html = [
         "<!DOCTYPE html>",
@@ -65,63 +67,32 @@ def generate_html(groups):
     )
     html.append("</tbody></table>")
 
-    def comparisons_table(title, res, label, diff_key):
+    html.append("<h2>Prueba de normalidad (Shapiro-Wilk)</h2>")
+    html.append(
+        "<table><thead><tr><th>W</th><th>Valor-p</th></tr></thead>"
+        f"<tbody><tr><td>{shapiro['w']:.4f}</td><td>{shapiro['p_value']:.4f}</td></tr></tbody></table>"
+    )
+
+    def comparisons_table(title, res, label):
         html.append(f"<h2>{title}</h2>")
         html.append(
             f"<table><thead><tr><th>Comparación</th><th>|Ȳi - Ȳj|</th><th>SE</th><th>{label}</th><th>Diferencia</th><th>Significativo</th></tr></thead><tbody>"
         )
-        for comp in res['comparaciones'].values():
-            diff_val = comp.get(diff_key, 0)
+        for key, comp in res['comparaciones'].items():
+            val_label = 'lsd' if label == 't crítico' else ('hsd' if label == 'q crítico' else 'dms')
+            diff_val = comp.get(val_label, 0)
             crit = comp.get('t_crit') or comp.get('q_crit')
             html.append(
                 f"<tr><td>{comp['grupo1']} - {comp['grupo2']}</td><td>{comp['diff']:.4f}</td><td>{comp['se']:.4f}</td><td>{crit:.4f}</td><td>{diff_val:.4f}</td><td>{'Sí' if comp['significant'] else 'No'}</td></tr>"
             )
         html.append("</tbody></table>")
 
-    comparisons_table('Prueba LSD', lsd, 't crítico', 'lsd')
-    comparisons_table('Prueba de Tukey', tukey, 'q crítico', 'hsd')
-    comparisons_table('Prueba de Duncan', duncan, 'q crítico', 'dms')
+    comparisons_table('Prueba LSD', lsd, 't crítico')
+    comparisons_table('Prueba de Tukey', tukey, 'q crítico')
+    comparisons_table('Prueba de Duncan', duncan, 'q crítico')
 
     html.append("</body></html>")
     return "\n".join(html)
-
-
-def format_text(groups):
-    """Return a plain text report for the ANOVA and post-hoc tests."""
-    anova_res = run_anova(groups)
-    calcs = calculos_por_tratamiento(groups)
-    lsd = calcular_lsd(groups)
-    tukey = calcular_tukey(groups)
-    duncan = calcular_duncan(groups)
-
-    lines = ["MEDIAS POR GRUPO"]
-    for g, m in anova_res["group_means"].items():
-        lines.append(f"  {g}: {m:.4f}")
-
-    lines.append("\nTABLA ANOVA (FV, SC, GL, CM, F0, Valor-p)")
-    lines.append(
-        f"Tratamientos: {anova_res['SC_TRAT']:.4f}, {anova_res['GL_TRAT']}, {anova_res['CM_TRAT']:.4f}, {anova_res['F0']:.4f}, {anova_res['p_value']:.4f}"
-    )
-    lines.append(
-        f"Error: {anova_res['SC_E']:.4f}, {anova_res['GL_E']}, {anova_res['CM_E']:.4f}"
-    )
-    lines.append(f"Total: {anova_res['SC_T']:.4f}, {anova_res['GL_T']}")
-
-    def comps(title, res, key):
-        lines.append(f"\n{title}")
-        for comp in res["comparaciones"].values():
-            crit = comp.get("t_crit") or comp.get("q_crit")
-            val = comp.get(key)
-            sig = "Sí" if comp["significant"] else "No"
-            lines.append(
-                f"  {comp['grupo1']} - {comp['grupo2']}: diff={comp['diff']:.4f}, se={comp['se']:.4f}, crit={crit:.4f}, {key}={val:.4f}, sig={sig}"
-            )
-
-    comps("Prueba LSD", lsd, "lsd")
-    comps("Prueba de Tukey", tukey, "hsd")
-    comps("Prueba de Duncan", duncan, "dms")
-
-    return "\n".join(lines)
 
 
 def main():
@@ -133,8 +104,10 @@ def main():
         "D": [10, 12, 11, 9],
     }
 
-    report = format_text(groups)
-    print(report)
+    html = generate_html(groups)
+    with open("index.html", "w", encoding="utf-8") as f:
+        f.write(html)
+    print("Archivo index.html generado con los resultados")
 
 
 if __name__ == "__main__":
