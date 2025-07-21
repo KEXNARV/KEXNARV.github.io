@@ -112,9 +112,6 @@ async function runAnovaPy(groups) {
     const result = pyodide.globals
         .get('result')
         .toJs({ dict_converter: Object.fromEntries });
-    const result = pyodide.globals
-        .get('result')
-        .toJs({ dict_converter: Object.fromEntries });
     pyodide.globals.delete('result');
     pyodide.globals.delete('groups');
     return result;
@@ -134,19 +131,6 @@ async function runCalculosPy(groups) {
     return calcs;
 }
 
-async function runCalculosPy(groups) {
-    const pyodide = await initPyodide;
-    pyodide.globals.set('observaciones', groups);
-    await pyodide.runPythonAsync(
-        'calcs = calculos_por_tratamiento(observaciones)'
-    );
-    const calcs = pyodide.globals
-        .get('calcs')
-        .toJs({ dict_converter: Object.fromEntries });
-    pyodide.globals.delete('calcs');
-    pyodide.globals.delete('observaciones');
-    return calcs;
-}
 
 document.getElementById('runAnova').addEventListener('click', async function() {
     const rows = document.querySelectorAll('#dataTable tbody tr');
@@ -168,7 +152,6 @@ document.getElementById('runAnova').addEventListener('click', async function() {
     }
 
     const result = await runAnovaPy(groups);
-    const calcs = await runCalculosPy(groups);
     const calcs = await runCalculosPy(groups);
     const groupMeans = result.group_means;
 
