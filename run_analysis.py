@@ -5,6 +5,7 @@ from anova import (
     calcular_tukey,
     calcular_duncan,
     prueba_shapiro,
+    tabla_shapiro,
 )
 
 
@@ -15,6 +16,7 @@ def generate_html(groups):
     tukey = calcular_tukey(groups)
     duncan = calcular_duncan(groups)
     shapiro = prueba_shapiro(groups)
+    shapiro_table = tabla_shapiro(groups)
 
     html = [
         "<!DOCTYPE html>",
@@ -72,6 +74,16 @@ def generate_html(groups):
         "<table><thead><tr><th>W</th><th>Valor-p</th></tr></thead>"
         f"<tbody><tr><td>{shapiro['w']:.4f}</td><td>{shapiro['p_value']:.4f}</td></tr></tbody></table>"
     )
+
+    html.append("<h3>Diferencias pareadas utilizadas</h3>")
+    html.append(
+        "<table><thead><tr><th>i</th><th>X_{(n-i+1)} - X_{(i)}</th><th>a_i × diferencia</th></tr></thead><tbody>"
+    )
+    for row in shapiro_table:
+        html.append(
+            f"<tr><td>{row['i']}</td><td>{row['diff']:.4f}</td><td>{row['weighted_diff']:.4f}</td></tr>"
+        )
+    html.append("</tbody></table>")
 
     def comparisons_table(title, res, label):
         html.append(f"<h2>{title}</h2>")
