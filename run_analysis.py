@@ -126,6 +126,7 @@ def format_text(groups):
     tukey = calcular_tukey(groups)
     duncan = calcular_duncan(groups)
     shapiro = prueba_shapiro(groups)
+    bartlett = prueba_bartlett(groups)
 
     lines = ["MEDIAS POR GRUPO"]
     for g, m in anova_res["group_means"].items():
