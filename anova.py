@@ -72,6 +72,7 @@ def calculos_por_tratamiento(observaciones_js):
     except AttributeError:
         observaciones = observaciones_js
 
+
     # Datos de observaciones por tratamiento (método de ensamble)
 
     # Paso 1: Calcular el total por tratamiento (Yi·)
@@ -148,6 +149,8 @@ def calcular_lsd(observaciones_js, alpha=0.05):
         observaciones = observaciones_js.to_py()
     except AttributeError:
         observaciones = observaciones_js
+    if not 0 < alpha < 1:
+        raise ValueError("alpha debe estar entre 0 y 1")
 
     anova_res = run_anova(observaciones)
     medias = anova_res['group_means']
@@ -208,6 +211,8 @@ def calcular_tukey(observaciones_js, alpha=0.05):
         observaciones = observaciones_js.to_py()
     except AttributeError:
         observaciones = observaciones_js
+    if not 0 < alpha < 1:
+        raise ValueError("alpha debe estar entre 0 y 1")
 
     anova_res = run_anova(observaciones)
     medias = anova_res['group_means']
@@ -289,6 +294,8 @@ def calcular_duncan(observaciones_js, alpha=0.05):
         observaciones = observaciones_js.to_py()
     except AttributeError:
         observaciones = observaciones_js
+    if not 0 < alpha < 1:
+        raise ValueError("alpha debe estar entre 0 y 1")
 
     anova_res = run_anova(observaciones)
     medias = anova_res['group_means']
