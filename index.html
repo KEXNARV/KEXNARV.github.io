@@ -103,6 +103,8 @@ async function runAnovaPy(groups) {
     await pyodide.loadPackage('scipy');
     pyodide.globals.set('groups', groups);
     pyodide.runPython(`
+from js import groups as js_groups
+groups = js_groups.to_py()
 # Paso 1: Definir los grupos de tratamiento y sus observaciones
 # observaciones = {
 #     'A': [6, 8, 7, 8],
@@ -168,6 +170,7 @@ result = {
 `);
     const result = pyodide.globals.get('result').toJs();
     pyodide.globals.delete('result');
+    pyodide.globals.delete('groups');
     return result;
 }
 
